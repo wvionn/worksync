@@ -126,6 +126,11 @@
                 padding-top: 3rem;
             }
         }
+
+        /* Alpine.js: sembunyikan elemen dengan x-cloak agar tidak flash */
+        [x-cloak] {
+            display: none !important;
+        }
     </style>
 </head>
 

@@ -20,7 +20,15 @@ new #[Layout('layouts.guest')] class extends Component
 
         Session::regenerate();
 
-        $this->redirectIntended(default: route('dashboard', absolute: false), navigate: true);
+        session()->flash('success_message', 'Login berhasil! Selamat datang.');
+
+        $user = auth()->user();
+
+        if ($user->role === 'admin') {
+            $this->redirectIntended(default: route('admin.dashboard', absolute: false), navigate: true);
+        } else {
+            $this->redirectIntended(default: route('member.dashboard', absolute: false), navigate: true);
+        }
     }
 }; ?>
 
@@ -252,13 +260,13 @@ new #[Layout('layouts.guest')] class extends Component
             @enderror
         </div>
 
-        <!-- Password -->
-        <div class="form-group">
+        <!-- Password (dengan Alpine.js toggle) -->
+        <div class="form-group" x-data="{ showPassword: false }">
             <label for="password">Password <span class="required">*</span></label>
             <div class="input-wrapper">
                 <input
                     wire:model="form.password"
-                    type="password"
+                    x-bind:type="showPassword ? 'text' : 'password'"
                     id="password"
                     name="password"
                     placeholder="••••••••••"
@@ -267,19 +275,20 @@ new #[Layout('layouts.guest')] class extends Component
                     class="{{ $errors->has('form.password') ? 'input-error-border' : '' }}"
                 >
                 <!-- Tombol Toggle Password -->
-                <button type="button" class="toggle-password" id="togglePasswordBtn" title="Tampilkan/Sembunyikan Password">
-                    <!-- Ikon Mata Terbuka (default: password tersembunyi) -->
-                    <svg id="eyeOpen" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
-                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-                        <circle cx="12" cy="12" r="3"></circle>
-                    </svg>
-                    <!-- Ikon Mata Tertutup (tersembunyi) -->
-                    <svg id="eyeClosed" style="display:none;" xmlns="http://www.w3.org/2000/svg" width="18" height="18"
+                <button type="button" class="toggle-password" @click="showPassword = !showPassword" title="Tampilkan/Sembunyikan Password">
+                    <!-- Ikon Mata Tertutup (password tersembunyi) -->
+                    <svg x-show="!showPassword" xmlns="http://www.w3.org/2000/svg" width="18" height="18"
                         viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                         stroke-linejoin="round">
                         <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
                         <line x1="1" y1="1" x2="23" y2="23"></line>
+                    </svg>
+                    <!-- Ikon Mata Terbuka (password terlihat) -->
+                    <svg x-show="showPassword" x-cloak xmlns="http://www.w3.org/2000/svg" width="18" height="18"
+                        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                        <circle cx="12" cy="12" r="3"></circle>
                     </svg>
                 </button>
             </div>
@@ -339,18 +348,3 @@ new #[Layout('layouts.guest')] class extends Component
         </p>
     </div>
 </div>
-
-<script>
-    // Toggle password visibility
-    const toggleBtn = document.getElementById('togglePasswordBtn');
-    const passInput = document.getElementById('password');
-    const eyeOpen   = document.getElementById('eyeOpen');
-    const eyeClosed = document.getElementById('eyeClosed');
-
-    toggleBtn.addEventListener('click', function () {
-        const isHidden = passInput.getAttribute('type') === 'password';
-        passInput.setAttribute('type', isHidden ? 'text' : 'password');
-        eyeOpen.style.display   = isHidden ? 'none'  : 'block';
-        eyeClosed.style.display = isHidden ? 'block' : 'none';
-    });
-</script>
