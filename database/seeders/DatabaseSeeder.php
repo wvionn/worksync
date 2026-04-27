@@ -12,15 +12,17 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
-        // 1. Buat User Admin
-        $admin = User::create([
-            'name' => 'Ais',
-            'email' => 'admin@curator.pm',
-            'password' => Hash::make('123456'),
-            'role' => 'admin',
-        ]);
+        // User Admin
+        $admin = User::firstOrCreate(
+            ['email' => 'admin@curator.pm'],
+            [
+                'name' => 'Ais',
+                'password' => Hash::make('123456'),
+                'role' => 'admin',
+            ]
+        );
 
-        // 2. Buat Contoh Tasks
+        // Tasks
         $task1 = Task::create([
             'user_id' => $admin->id,
             'title' => 'Define API specs',
@@ -43,7 +45,7 @@ class DatabaseSeeder extends Seeder
             'priority' => 'low',
         ]);
 
-        // 3. Buat Contoh Activity
+        // Activity
         Activity::create([
             'task_id' => $task3->id,
             'user_id' => $admin->id,
