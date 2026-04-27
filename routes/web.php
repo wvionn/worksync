@@ -1,8 +1,12 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-
+use Livewire\Volt\Volt;
 Route::view('/', 'welcome');
+// Route untuk Admin Dashboard (Pastikan sudah login)
+Route::middleware(['auth'])->group(function () {
+    Volt::route('/admin/dashboard', 'admin.dashboard')->name('admin.dashboard');
+});
 
 Route::view('dashboard', 'dashboard')
     ->middleware(['auth', 'verified'])
@@ -11,13 +15,5 @@ Route::view('dashboard', 'dashboard')
 Route::view('profile', 'profile')
     ->middleware(['auth'])
     ->name('profile');
-
-Route::view('admin/dashboard', 'admin.dashboard')
-    ->middleware(['auth', 'verified'])
-    ->name('admin.dashboard');
-
-Route::view('member/dashboard', 'member.dashboard')
-    ->middleware(['auth', 'verified'])
-    ->name('member.dashboard');
 
 require __DIR__.'/auth.php';

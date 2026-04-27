@@ -33,8 +33,10 @@ class LoginForm extends Form
         if (! Auth::attempt($this->only(['email', 'password']), $this->remember)) {
             RateLimiter::hit($this->throttleKey());
 
+            session()->flash('error_message', 'Login gagal. Email atau password tidak sesuai.');
+
             throw ValidationException::withMessages([
-                'form.email' => trans('auth.failed'),
+                'form.email' => 'Login gagal. Email atau password tidak sesuai.',
             ]);
         }
 

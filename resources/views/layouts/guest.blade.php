@@ -14,6 +14,7 @@
 
     <!-- Vite Scripts & Styles -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @livewireStyles
 
     <style>
         /* Reset CSS dan variabel */
@@ -148,6 +149,8 @@
             </div>
         </div>
     </div>
+
+    @livewireScripts
 </body>
 
 </html>

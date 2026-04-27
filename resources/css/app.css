@@ -1,3 +1,27 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+	:root {
+		--admin-bg: #eef1f8;
+		--admin-panel: #ffffff;
+		--admin-accent: #1652c5;
+		--admin-text: #0f172a;
+		--admin-muted: #64748b;
+	}
+
+	.admin-theme {
+		font-family: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
+		color: var(--admin-text);
+		background-color: var(--admin-bg);
+	}
+
+	.admin-theme h1,
+	.admin-theme h2,
+	.admin-theme h3,
+	.admin-theme h4 {
+		font-family: 'Manrope', ui-sans-serif, system-ui, sans-serif;
+		letter-spacing: -0.02em;
+	}
+}
