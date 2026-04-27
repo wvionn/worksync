@@ -12,7 +12,6 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('activities', function (Blueprint $table) {
-            $table->foreignId('user_id')->nullable()->after('id')->constrained('users')->nullOnDelete();
             $table->string('title')->default('System activity')->after('user_id');
             $table->text('description')->nullable()->after('title');
             $table->string('category')->default('system')->after('description');
@@ -31,11 +30,9 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('activities', function (Blueprint $table) {
-            $table->dropForeign(['user_id']);
             $table->dropIndex(['category', 'is_read']);
             $table->dropIndex(['occurred_at']);
             $table->dropColumn([
-                'user_id',
                 'title',
                 'description',
                 'category',
