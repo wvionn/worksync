@@ -2,18 +2,50 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Task extends Model
 {
-    protected $guarded = [];
+    use HasFactory;
 
-    public function user()
+    protected $fillable = [
+        'project_id',
+        'user_id',
+        'title',
+        'description',
+        'module_name',
+        'status',
+        'priority',
+        'due_date',
+    ];
+
+    protected function casts(): array
+    {
+        return [
+            'due_date' => 'date',
+        ];
+    }
+
+    public function project(): BelongsTo
+    {
+        return $this->belongsTo(Project::class);
+    }
+
+    public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
-    public function activity()
+
+    public function activities(): HasMany
     {
         return $this->hasMany(Activity::class);
+    }
+
+    public function isOverdue(): bool
+    {
+        return $this->due_date && $this->due_date->isPast() && $this->status !== 'done';
     }
 }
