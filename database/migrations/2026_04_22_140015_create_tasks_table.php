@@ -10,19 +10,23 @@ return new class extends Migration
      * Run the migrations.
      */
     public function up(): void
-{
-    Schema::create('tasks', function (Blueprint $table) {
-        $table->id();
-        $table->foreignId('user_id')->nullable()->constrained()->onDelete('set null'); // Di-assign ke siapa
-        $table->string('title'); // Contoh: Buat API Login Mahasiswa
-        $table->text('description')->nullable();
-        $table->string('module_name')->nullable(); // Opsional: misal "Modul Keuangan", "Frontend"
-        $table->enum('status', ['todo', 'doing', 'done', 'overdue'])->default('todo');
-        $table->enum('priority', ['low', 'medium', 'high', 'urgent'])->default('medium');
-        $table->date('due_date')->nullable();
-        $table->timestamps();
-    });
-}
+    {
+        Schema::create('tasks', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('project_id')->nullable()->constrained()->onDelete('cascade');
+            $table->foreignId('user_id')->nullable()->constrained()->onDelete('set null');
+            $table->string('title');
+            $table->text('description')->nullable();
+            $table->string('module_name')->nullable();
+            $table->enum('status', ['todo', 'doing', 'done', 'overdue'])->default('todo');
+            $table->enum('priority', ['low', 'medium', 'high', 'urgent'])->default('medium');
+            $table->date('due_date')->nullable();
+            $table->timestamps();
+            
+            $table->index(['status', 'priority']);
+            $table->index('due_date');
+        });
+    }
 
     /**
      * Reverse the migrations.
