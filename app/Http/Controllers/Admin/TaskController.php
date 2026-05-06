@@ -19,30 +19,51 @@ class TaskController extends Controller
         $statusFilter = (string) $request->string('status');
         $search = (string) $request->string('search');
 
-        $tasks = Task::query()
-            ->with(['project', 'assignee'])
+        // For Kanban view
+        $todoTasks = Task::with('user', 'project')
+            ->where('status', 'todo')
             ->when($search !== '', function ($query) use ($search): void {
-                $query->where(function ($innerQuery) use ($search): void {
-                    $innerQuery
-                        ->where('title', 'like', "%{$search}%")
-                        ->orWhereHas('project', function ($projectQuery) use ($search): void {
-                            $projectQuery->where('name', 'like', "%{$search}%");
-                        });
-                });
+                $query->where('title', 'like', "%{$search}%");
             })
-            ->when($statusFilter !== '', function ($query) use ($statusFilter): void {
-                $query->where('status', $statusFilter);
+            ->orderBy('priority', 'desc')
+            ->orderBy('due_date', 'asc')
+            ->get();
+
+        $doingTasks = Task::with('user', 'project')
+            ->where('status', 'doing')
+            ->when($search !== '', function ($query) use ($search): void {
+                $query->where('title', 'like', "%{$search}%");
+            })
+            ->orderBy('priority', 'desc')
+            ->orderBy('due_date', 'asc')
+            ->get();
+
+        $doneTasks = Task::with('user', 'project')
+            ->where('status', 'done')
+            ->when($search !== '', function ($query) use ($search): void {
+                $query->where('title', 'like', "%{$search}%");
             })
             ->latest('updated_at')
-            ->paginate(12)
-            ->withQueryString();
+            ->get();
 
         return view('admin.tasks.index', [
-            'tasks' => $tasks,
+            'todoTasks' => $todoTasks,
+            'doingTasks' => $doingTasks,
+            'doneTasks' => $doneTasks,
             'projects' => Project::query()->orderBy('name')->get(['id', 'name']),
             'users' => User::query()->orderBy('name')->get(['id', 'name']),
             'search' => $search,
             'statusFilter' => $statusFilter,
+            'statusOptions' => ['todo', 'doing', 'done', 'overdue'],
+            'priorityOptions' => ['low', 'medium', 'high', 'urgent'],
+        ]);
+    }
+
+    public function create(): View
+    {
+        return view('admin.tasks.create', [
+            'projects' => Project::query()->orderBy('name')->get(['id', 'name']),
+            'users' => User::query()->orderBy('name')->get(['id', 'name']),
             'statusOptions' => ['todo', 'doing', 'done', 'overdue'],
             'priorityOptions' => ['low', 'medium', 'high', 'urgent'],
         ]);
@@ -56,7 +77,7 @@ class TaskController extends Controller
             'description' => ['nullable', 'string'],
             'status' => ['required', Rule::in(['todo', 'doing', 'done', 'overdue'])],
             'priority' => ['required', Rule::in(['low', 'medium', 'high', 'urgent'])],
-            'assigned_to' => ['nullable', 'exists:users,id'],
+            'user_id' => ['nullable', 'exists:users,id'],
             'due_date' => ['nullable', 'date'],
         ]);
 
@@ -74,9 +95,36 @@ class TaskController extends Controller
             'occurred_at' => now(),
         ]);
 
+        // Redirect back to project if task was created from project page
+        if ($validated['project_id'] && $request->has('redirect_to_project')) {
+            return redirect()
+                ->route('admin.projects.show', $validated['project_id'])
+                ->with('success_message', 'Task berhasil dibuat.');
+        }
+
         return redirect()
             ->route('admin.tasks.index')
             ->with('success_message', 'Task berhasil dibuat.');
+    }
+
+    public function show(Task $task): View
+    {
+        $task->load(['project', 'user']);
+        
+        return view('admin.tasks.show', [
+            'task' => $task,
+        ]);
+    }
+
+    public function edit(Task $task): View
+    {
+        return view('admin.tasks.edit', [
+            'task' => $task,
+            'projects' => Project::query()->orderBy('name')->get(['id', 'name']),
+            'users' => User::query()->orderBy('name')->get(['id', 'name']),
+            'statusOptions' => ['todo', 'doing', 'done', 'overdue'],
+            'priorityOptions' => ['low', 'medium', 'high', 'urgent'],
+        ]);
     }
 
     public function update(Request $request, Task $task): RedirectResponse
@@ -87,7 +135,7 @@ class TaskController extends Controller
             'description' => ['nullable', 'string'],
             'status' => ['required', Rule::in(['todo', 'doing', 'done', 'overdue'])],
             'priority' => ['required', Rule::in(['low', 'medium', 'high', 'urgent'])],
-            'assigned_to' => ['nullable', 'exists:users,id'],
+            'user_id' => ['nullable', 'exists:users,id'],
             'due_date' => ['nullable', 'date'],
         ]);
 
@@ -108,6 +156,26 @@ class TaskController extends Controller
         return redirect()
             ->route('admin.tasks.index')
             ->with('success_message', 'Task berhasil diperbarui.');
+    }
+
+    public function destroy(Task $task): RedirectResponse
+    {
+        $taskTitle = $task->title;
+        $task->delete();
+
+        Activity::create([
+            'user_id' => auth()->id(),
+            'title' => 'Task deleted',
+            'description' => "Task {$taskTitle} was deleted.",
+            'category' => 'task',
+            'is_read' => false,
+            'link' => route('admin.tasks.index'),
+            'occurred_at' => now(),
+        ]);
+
+        return redirect()
+            ->route('admin.tasks.index')
+            ->with('success_message', 'Task berhasil dihapus.');
     }
 
     public function complete(Request $request, Task $task): RedirectResponse
