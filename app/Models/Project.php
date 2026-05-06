@@ -20,7 +20,6 @@ class Project extends Model
         'name',
         'client_name',
         'owner_id',
-        'progress',
         'status',
         'priority',
         'due_date',
@@ -35,10 +34,25 @@ class Project extends Model
     protected function casts(): array
     {
         return [
-            'progress' => 'integer',
             'due_date' => 'date',
             'archived_at' => 'datetime',
         ];
+    }
+
+    /**
+     * Get auto-calculated progress based on completed tasks.
+     */
+    public function getProgressAttribute(): int
+    {
+        $totalTasks = $this->tasks()->count();
+        
+        if ($totalTasks === 0) {
+            return 0;
+        }
+        
+        $completedTasks = $this->tasks()->where('status', 'done')->count();
+        
+        return (int) round(($completedTasks / $totalTasks) * 100);
     }
 
     public function owner(): BelongsTo
@@ -54,5 +68,28 @@ class Project extends Model
     public function completedTasks(): HasMany
     {
         return $this->tasks()->where('status', 'done');
+    }
+
+    /**
+     * Members assigned to this project.
+     */
+    public function members(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'project_user')
+            ->withTimestamps();
+    }
+
+    /**
+     * Get task breakdown for display.
+     */
+    public function getTaskBreakdown(): array
+    {
+        return [
+            'total' => $this->tasks()->count(),
+            'completed' => $this->tasks()->where('status', 'done')->count(),
+            'in_progress' => $this->tasks()->where('status', 'doing')->count(),
+            'todo' => $this->tasks()->where('status', 'todo')->count(),
+            'recently_added' => $this->tasks()->where('created_at', '>=', now()->subWeek())->count(),
+        ];
     }
 }

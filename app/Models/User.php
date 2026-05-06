@@ -33,9 +33,29 @@ class User extends Authenticatable
     {
         return $this->hasMany(Task::class);
     }
+
     public function activities()
     {
         return $this->hasMany(Activity::class);
+    }
+
+    public function ownedProjects()
+    {
+        return $this->hasMany(Project::class, 'owner_id');
+    }
+
+    public function assignedTasks()
+    {
+        return $this->hasMany(Task::class, 'user_id');
+    }
+
+    /**
+     * Projects this user is assigned to as a member.
+     */
+    public function projects()
+    {
+        return $this->belongsToMany(Project::class, 'project_user')
+            ->withTimestamps();
     }
 }
 
