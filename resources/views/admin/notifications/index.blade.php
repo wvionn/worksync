@@ -1,70 +1,49 @@
-@extends('admin.layouts.app')
+@extends('layouts.admin')
 
-@section('page_title', 'Notifications')
+@section('title', 'Notifications')
 
 @section('content')
-    <div class="space-y-6">
-        <header class="flex flex-col gap-3 rounded-3xl border border-white/80 bg-white p-6 shadow-sm sm:flex-row sm:items-center sm:justify-between">
-            <div>
-                <h1 class="font-['Manrope'] text-3xl font-extrabold text-slate-900">Notifications</h1>
-                <p class="mt-1 text-sm text-slate-500">Activity feed untuk project, tasks, dan perubahan akun.</p>
-            </div>
-
-            <form method="POST" action="{{ route('admin.notifications.read-all') }}">
-                @csrf
-                <button type="submit" class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-100">
-                    Mark All as Read ({{ $unreadCount }})
-                </button>
-            </form>
-        </header>
-
-        <section class="space-y-3 rounded-3xl border border-white/80 bg-white p-5 shadow-sm sm:p-6">
-            @forelse ($activities as $activity)
-                <article class="rounded-2xl border px-4 py-3 {{ $activity->is_read ? 'border-slate-100 bg-slate-50/70' : 'border-blue-100 bg-blue-50/60' }}">
-                    <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                        <div>
-                            <div class="flex items-center gap-2">
-                                <h2 class="text-base font-bold text-slate-900">{{ $activity->title }}</h2>
-                                <span class="rounded-full bg-white px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.12em] text-slate-500">
-                                    {{ $activity->category }}
-                                </span>
-                                @if (! $activity->is_read)
-                                    <span class="rounded-full bg-blue-600 px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.12em] text-white">New</span>
-                                @endif
-                            </div>
-
-                            <p class="mt-1 text-sm text-slate-600">{{ $activity->description }}</p>
-                            <p class="mt-2 text-xs font-semibold text-slate-500">
-                                by {{ $activity->user?->name ?? 'System' }} · {{ ($activity->occurred_at ?? $activity->created_at)->diffForHumans() }}
-                            </p>
-                        </div>
-
-                        <div class="flex gap-2 sm:shrink-0">
-                            @if ($activity->link)
-                                <a href="{{ $activity->link }}" class="rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-100">Open</a>
-                            @endif
-
-                            @if (! $activity->is_read)
-                                <form method="POST" action="{{ route('admin.notifications.read', $activity) }}">
-                                    @csrf
-                                    @method('PATCH')
-                                    <button type="submit" class="rounded-xl border border-blue-200 bg-blue-100 px-3 py-1.5 text-xs font-semibold text-blue-700 hover:bg-blue-200">
-                                        Mark Read
-                                    </button>
-                                </form>
-                            @endif
-                        </div>
-                    </div>
-                </article>
-            @empty
-                <p class="rounded-2xl border border-dashed border-slate-200 bg-slate-50 p-5 text-sm text-slate-500">
-                    Belum ada notifikasi.
-                </p>
-            @endforelse
-
-            <div>
-                {{ $activities->links() }}
-            </div>
-        </section>
+<div class="space-y-6">
+    <!-- Header -->
+    <div class="flex items-center justify-between">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-900">Notifications</h1>
+            <p class="text-gray-600 mt-1">Stay updated with recent activities</p>
+        </div>
+        <button class="btn-secondary">Mark all as read</button>
     </div>
+
+    <!-- Notifications List -->
+    <div class="bg-white rounded-xl border border-gray-200 divide-y divide-gray-200">
+        @forelse($activities ?? [] as $activity)
+        <div class="p-4 hover:bg-gray-50 cursor-pointer {{ $activity->is_read ? '' : 'bg-blue-50' }}">
+            <div class="flex items-start gap-4">
+                <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
+                    <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
+                    </svg>
+                </div>
+                <div class="flex-1">
+                    <p class="font-medium text-gray-900">{{ $activity->title }}</p>
+                    <p class="text-sm text-gray-600 mt-1">{{ $activity->description }}</p>
+                    <div class="flex items-center gap-3 mt-2">
+                        <p class="text-xs text-gray-400">{{ $activity->occurred_at ? $activity->occurred_at->diffForHumans() : $activity->created_at->diffForHumans() }}</p>
+                        @if($activity->user)
+                        <span class="text-xs text-gray-500">by {{ $activity->user->name }}</span>
+                        @endif
+                    </div>
+                </div>
+            </div>
+        </div>
+        @empty
+        <div class="p-12 text-center text-gray-500">
+            <svg class="w-12 h-12 mx-auto text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
+            </svg>
+            <p class="text-lg font-medium">No notifications</p>
+            <p class="text-sm mt-1">You're all caught up!</p>
+        </div>
+        @endforelse
+    </div>
+</div>
 @endsection

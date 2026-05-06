@@ -1,68 +1,72 @@
-@extends('admin.layouts.app')
+@extends('layouts.admin')
 
-@section('page_title', 'Users')
+@section('title', 'Users')
 
 @section('content')
-    <div class="space-y-6">
-        <header class="rounded-3xl border border-white/80 bg-white p-6 shadow-sm">
-            <h1 class="font-['Manrope'] text-3xl font-extrabold text-slate-900">User Management</h1>
-            <p class="mt-1 text-sm text-slate-500">Pantau peran pengguna serta kontribusinya di project dan task.</p>
-
-            <div class="mt-5 grid gap-3 sm:grid-cols-3">
-                <div class="rounded-2xl border border-blue-100 bg-blue-50 p-4">
-                    <p class="text-xs font-bold uppercase tracking-[0.14em] text-blue-700">Total Users</p>
-                    <p class="mt-2 text-3xl font-extrabold text-blue-900">{{ $users->total() }}</p>
-                </div>
-                <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                    <p class="text-xs font-bold uppercase tracking-[0.14em] text-slate-600">Admin</p>
-                    <p class="mt-2 text-3xl font-extrabold text-slate-900">{{ $adminCount }}</p>
-                </div>
-                <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                    <p class="text-xs font-bold uppercase tracking-[0.14em] text-slate-600">Member</p>
-                    <p class="mt-2 text-3xl font-extrabold text-slate-900">{{ $memberCount }}</p>
-                </div>
-            </div>
-        </header>
-
-        <section class="rounded-3xl border border-white/80 bg-white p-5 shadow-sm sm:p-6">
-            <div class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-slate-100 text-sm">
-                    <thead>
-                        <tr class="text-left text-xs font-bold uppercase tracking-[0.14em] text-slate-500">
-                            <th class="px-3 py-3">Name</th>
-                            <th class="px-3 py-3">Email</th>
-                            <th class="px-3 py-3">Role</th>
-                            <th class="px-3 py-3">Owned Projects</th>
-                            <th class="px-3 py-3">Assigned Tasks</th>
-                            <th class="px-3 py-3">Joined</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-slate-100 text-slate-700">
-                        @forelse ($users as $user)
-                            <tr>
-                                <td class="px-3 py-3 font-semibold text-slate-900">{{ $user->name }}</td>
-                                <td class="px-3 py-3">{{ $user->email }}</td>
-                                <td class="px-3 py-3">
-                                    <span class="rounded-full px-2.5 py-1 text-xs font-bold {{ $user->role === 'admin' ? 'bg-blue-100 text-blue-700' : 'bg-slate-100 text-slate-700' }}">
-                                        {{ ucfirst($user->role) }}
-                                    </span>
-                                </td>
-                                <td class="px-3 py-3">{{ $user->owned_projects_count }}</td>
-                                <td class="px-3 py-3">{{ $user->assigned_tasks_count }}</td>
-                                <td class="px-3 py-3">{{ $user->created_at->format('d M Y') }}</td>
-                            </tr>
-                        @empty
-                            <tr>
-                                <td colspan="6" class="px-3 py-6 text-center text-sm text-slate-500">Belum ada data user.</td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
-
-            <div class="mt-4">
-                {{ $users->links() }}
-            </div>
-        </section>
+<div class="space-y-6">
+    <!-- Header -->
+    <div class="flex items-center justify-between">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-900">Users</h1>
+            <p class="text-gray-600 mt-1">Manage team members and permissions</p>
+        </div>
+        <button class="btn-primary">
+            <svg class="w-5 h-5 inline-block mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+            </svg>
+            Add User
+        </button>
     </div>
+
+    <!-- Users List -->
+    <div class="bg-white rounded-xl border border-gray-200">
+        <div class="overflow-x-auto">
+            <table class="w-full">
+                <thead class="bg-gray-50 border-b border-gray-200">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Role</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tasks</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Joined</th>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200">
+                    @forelse($users ?? [] as $user)
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-6 py-4">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center text-white font-semibold">
+                                    {{ substr($user->name, 0, 2) }}
+                                </div>
+                                <span class="font-medium text-gray-900">{{ $user->name }}</span>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 text-sm text-gray-600">{{ $user->email }}</td>
+                        <td class="px-6 py-4">
+                            <span class="px-2 py-1 text-xs font-medium rounded-full
+                                {{ $user->role === 'admin' ? 'bg-purple-100 text-purple-700' : 'bg-gray-100 text-gray-700' }}">
+                                {{ ucfirst($user->role) }}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 text-sm text-gray-900">{{ $user->assigned_tasks_count ?? 0 }}</td>
+                        <td class="px-6 py-4 text-sm text-gray-600">{{ $user->created_at->format('M d, Y') }}</td>
+                        <td class="px-6 py-4 text-right">
+                            <button class="text-blue-600 hover:text-blue-700 mr-3">Edit</button>
+                            <button class="text-red-600 hover:text-red-700">Delete</button>
+                        </td>
+                    </tr>
+                    @empty
+                    <tr>
+                        <td colspan="6" class="px-6 py-12 text-center text-gray-500">
+                            <p>No users found</p>
+                        </td>
+                    </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
 @endsection
