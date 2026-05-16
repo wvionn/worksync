@@ -19,6 +19,13 @@ Route::middleware(['auth', 'role:member'])->prefix('member')->name('member.')->g
     Route::get('/dashboard', [MemberDashboardController::class, 'index'])->name('dashboard');
     Route::get('/tasks/{task}', [MemberTaskController::class, 'show'])->name('tasks.show');
     Route::patch('/tasks/{task}/status', [MemberTaskController::class, 'updateStatus'])->name('tasks.updateStatus');
+    
+    // New Side Menu Routes
+    Route::view('/deadlines', 'member.deadlines.index')->name('deadlines');
+    Route::view('/projects', 'member.projects.index')->name('projects');
+    Route::view('/chat', 'member.chat.index')->name('chat');
+    Route::view('/profile', 'member.profile.index')->name('profile');
+    Route::view('/settings', 'member.settings.index')->name('settings');
 });
 
 // Admin Routes
