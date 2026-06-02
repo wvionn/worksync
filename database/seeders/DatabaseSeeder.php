@@ -96,6 +96,25 @@ class DatabaseSeeder extends Seeder
             'due_date' => now()->addDays(1),
         ]);
 
+        $task6 = Task::create([
+            'user_id' => $member1->id,
+            'title' => 'Fix Critical Security Vulnerability',
+            'description' => 'Patch the security vulnerability found during audit',
+            'status' => 'overdue',
+            'priority' => 'urgent',
+            'due_date' => now()->subDays(3),
+        ]);
+
+        $task7 = Task::create([
+            'user_id' => $member2->id,
+            'title' => 'Update Dependencies',
+            'description' => 'Update out-of-date npm packages',
+            'status' => 'todo',
+            'priority' => 'medium',
+            'due_date' => now()->subDays(1),
+        ]);
+
+
         // Activity
         Activity::create([
             'task_id' => $task3->id,
