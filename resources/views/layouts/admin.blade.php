@@ -13,6 +13,7 @@
 
     <!-- Scripts -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @livewireStyles
 </head>
 <body class="font-sans antialiased bg-gray-50">
     <div class="flex h-screen overflow-hidden">
@@ -166,5 +167,6 @@
             });
         }
     </script>
+    @livewireScripts
 </body>
 </html>
