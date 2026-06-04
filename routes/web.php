@@ -32,6 +32,7 @@ Route::middleware(['auth', 'role:member'])->prefix('member')->name('member.')->g
 Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::resource('projects', ProjectController::class);
+    Route::patch('/tasks/{task}/complete', [TaskController::class, 'complete'])->name('tasks.complete');
     Route::resource('tasks', TaskController::class);
     Route::resource('users', UserController::class);
     Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
@@ -39,13 +40,14 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     // Notifications Routes
     Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
     Route::patch('/notifications/{activity}/read', [NotificationController::class, 'markRead'])->name('notifications.markRead');
+    Route::patch('/notifications/{activity}/read-alias', [NotificationController::class, 'markRead'])->name('notifications.read');
     Route::post('/notifications/mark-all-read', [NotificationController::class, 'markAllRead'])->name('notifications.markAllRead');
 
     // Settings Routes
     Route::get('/settings', [SettingController::class, 'index'])->name('settings.index');
     Route::put('/settings', [SettingController::class, 'update'])->name('settings.update');
 
-    Route::get('/chat', [ChatController::class, 'index'])->name('chat.index');
+    Route::view('/chat', 'admin.chat.index')->name('chat.index');
 });
 
 // User dashboard - redirect based on role
@@ -57,6 +59,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         return redirect()->route('member.dashboard');
     })->name('dashboard');
 });
+
+Route::view('profile', 'profile')->middleware(['auth'])->name('profile');
 
 require __DIR__ . '/auth.php';
 
