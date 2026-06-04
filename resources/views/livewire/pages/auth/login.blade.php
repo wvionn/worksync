@@ -9,6 +9,13 @@ new #[Layout('layouts.guest')] class extends Component
 {
     public LoginForm $form;
 
+    public function mount(): void
+    {
+        if (request()->hasAny(['email', 'password'])) {
+            $this->redirect(route('login', absolute: false));
+        }
+    }
+
     /**
      * Handle an incoming authentication request.
      */
@@ -20,7 +27,12 @@ new #[Layout('layouts.guest')] class extends Component
 
         Session::regenerate();
 
-        $this->redirectIntended(default: route('dashboard', absolute: false), navigate: true);
+        $user = auth()->user();
+        if ($user && $user->role === 'admin') {
+            $this->redirectIntended(default: route('admin.dashboard', absolute: false), navigate: true);
+        } else {
+            $this->redirectIntended(default: route('member.dashboard', absolute: false), navigate: true);
+        }
     }
 }; ?>
 

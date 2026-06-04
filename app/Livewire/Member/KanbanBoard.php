@@ -40,6 +40,19 @@ class KanbanBoard extends Component
             return;
         }
 
+        // Limit WIP: User can only have one task in 'doing' status at a time
+        if ($newStatus === 'doing') {
+            $existingDoingTask = Task::where('user_id', Auth::id())
+                ->where('status', 'doing')
+                ->where('id', '!=', $taskId)
+                ->first();
+
+            if ($existingDoingTask) {
+                session()->flash('error_message', 'Anda hanya dapat mengerjakan satu pekerjaan dalam satu waktu. Selesaikan terlebih dahulu yang sedang berjalan.');
+                return;
+            }
+        }
+
         $oldStatus = $task->status;
         $task->update([
             'status' => $newStatus,
