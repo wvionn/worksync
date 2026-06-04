@@ -11,6 +11,8 @@ class Project extends Model
 {
     use HasFactory;
 
+    public const ACTIVE_STATUSES = ['planning', 'active', 'on_hold'];
+
     /**
      * The attributes that are mass assignable.
      *
@@ -44,6 +46,10 @@ class Project extends Model
      */
     public function getProgressAttribute(): int
     {
+        if ($this->status === 'completed') {
+            return 100;
+        }
+
         $totalTasks = $this->tasks()->count();
         
         if ($totalTasks === 0) {
