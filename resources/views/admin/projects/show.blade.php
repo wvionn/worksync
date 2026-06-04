@@ -388,7 +388,7 @@
                     <select name="user_id" id="user_id"
                         class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
                         <option value="">Unassigned</option>
-                        @foreach(\App\Models\User::where('role', 'member')->orderBy('name')->get() as $user)
+                        @foreach($project->members as $user)
                             <option value="{{ $user->id }}">{{ $user->name }}</option>
                         @endforeach
                     </select>
