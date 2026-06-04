@@ -12,32 +12,39 @@ class DashboardController extends Controller
     public function index(Request $request): View
     {
         $user = $request->user();
-        
-        // Get tasks assigned to this member
-        $todoTasks = Task::with('project')
+
+        $tasks = Task::with('project')
             ->where('user_id', $user->id)
-            ->where('status', 'todo')
-            ->orderBy('priority', 'desc')
-            ->orderBy('due_date', 'asc')
             ->get();
 
-        $doingTasks = Task::with('project')
-            ->where('user_id', $user->id)
-            ->where('status', 'doing')
-            ->orderBy('priority', 'desc')
-            ->orderBy('due_date', 'asc')
-            ->get();
+        $todoTasks = $tasks->where('status', 'todo');
+        $doingTasks = $tasks->where('status', 'doing');
+        $doneTasks = $tasks->where('status', 'done');
 
-        $doneTasks = Task::with('project')
-            ->where('user_id', $user->id)
-            ->where('status', 'done')
-            ->latest('updated_at')
-            ->get();
+        $stats = [
+            'totalTasks' => $tasks->count(),
+            'doingTasks' => $doingTasks->count(),
+            'doneTasks' => $doneTasks->count(),
+            'overdueTasks' => $tasks
+                ->where('status', '!=', 'done')
+                ->filter(function ($task) {
+                    return $task->due_date &&
+                           \Carbon\Carbon::parse($task->due_date)->isPast();
+                })
+                ->count(),
+        ];
+
+        $urgentTasks = $tasks
+            ->where('status', '!=', 'done')
+            ->sortBy('due_date')
+            ->take(5);
 
         return view('member.dashboard', [
             'todoTasks' => $todoTasks,
             'doingTasks' => $doingTasks,
             'doneTasks' => $doneTasks,
+            'stats' => $stats,
+            'urgentTasks' => $urgentTasks,
         ]);
     }
 }
