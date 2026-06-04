@@ -108,11 +108,8 @@ test('navigation menu can be rendered', function () {
 
     $this->actingAs($user);
 
-    $response = $this->get('/dashboard');
-
-    $response
-        ->assertOk()
-        ->assertSeeVolt('layout.navigation');
+    Volt::test('layout.navigation')
+        ->assertOk();
 });
 
 test('users can logout', function () {

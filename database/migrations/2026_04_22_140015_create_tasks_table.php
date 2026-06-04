@@ -21,6 +21,7 @@ return new class extends Migration
             $table->enum('status', ['todo', 'doing', 'done', 'overdue'])->default('todo');
             $table->enum('priority', ['low', 'medium', 'high', 'urgent'])->default('medium');
             $table->date('due_date')->nullable();
+            $table->timestamp('completed_at')->nullable();
             $table->timestamps();
             
             $table->index(['status', 'priority']);
