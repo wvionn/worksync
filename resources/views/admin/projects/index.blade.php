@@ -4,6 +4,30 @@
 
 @section('content')
 <div class="space-y-6">
+    <!-- Success/Error Messages -->
+    @if(session('success_message'))
+    <div class="bg-green-50 border border-green-200 rounded-xl p-4 flex items-start gap-3">
+        <svg class="w-6 h-6 text-green-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+        </svg>
+        <div>
+            <p class="text-sm text-green-700">{{ session('success_message') }}</p>
+        </div>
+    </div>
+    @endif
+
+    @if(session('error_message'))
+    <div class="bg-red-50 border border-red-200 rounded-xl p-4 flex items-start gap-3">
+        <svg class="w-6 h-6 text-red-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+        </svg>
+        <div>
+            <h3 class="text-sm font-semibold text-red-800">Tidak dapat membuat project baru</h3>
+            <p class="text-sm text-red-700 mt-1">{{ session('error_message') }}</p>
+        </div>
+    </div>
+    @endif
+
     <!-- Header -->
     <div class="flex items-center justify-between">
         <div>

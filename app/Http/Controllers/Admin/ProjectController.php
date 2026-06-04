@@ -39,8 +39,15 @@ class ProjectController extends Controller
         ]);
     }
 
-    public function create(): View
+    public function create()
     {
+        $activeProjectExists = Project::whereIn('status', Project::ACTIVE_STATUSES)->exists();
+        if ($activeProjectExists) {
+            return redirect()
+                ->route('admin.projects.index')
+                ->with('error_message', 'Tidak dapat membuat project baru karena masih ada project lain yang belum selesai.');
+        }
+
         $members = User::where('role', 'member')->orderBy('name')->get(['id', 'name']);
         
         return view('admin.projects.create', [
@@ -52,12 +59,19 @@ class ProjectController extends Controller
 
     public function store(Request $request): RedirectResponse
     {
+        $activeProjectExists = Project::whereIn('status', Project::ACTIVE_STATUSES)->exists();
+        if ($activeProjectExists) {
+            return redirect()
+                ->route('admin.projects.index')
+                ->with('error_message', 'Tidak dapat membuat project baru karena masih ada project lain yang belum selesai.');
+        }
+
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:120'],
             'client_name' => ['nullable', 'string', 'max:120'],
             'status' => ['required', Rule::in(['planning', 'active', 'on_hold', 'completed'])],
             'priority' => ['required', Rule::in(['low', 'medium', 'high', 'urgent'])],
-            'due_date' => ['nullable', 'date'],
+            'due_date' => ['required', 'date', 'after_or_equal:today'],
             'member_ids' => ['nullable', 'array'],
             'member_ids.*' => ['exists:users,id'],
         ]);
@@ -118,10 +132,22 @@ class ProjectController extends Controller
             'client_name' => ['nullable', 'string', 'max:120'],
             'status' => ['required', Rule::in(['planning', 'active', 'on_hold', 'completed'])],
             'priority' => ['required', Rule::in(['low', 'medium', 'high', 'urgent'])],
-            'due_date' => ['nullable', 'date'],
+            'due_date' => ['required', 'date'],
             'member_ids' => ['nullable', 'array'],
             'member_ids.*' => ['exists:users,id'],
         ]);
+
+        if (in_array($validated['status'], Project::ACTIVE_STATUSES)) {
+            $anotherActiveProjectExists = Project::whereIn('status', Project::ACTIVE_STATUSES)
+                ->where('id', '!=', $project->id)
+                ->exists();
+            if ($anotherActiveProjectExists) {
+                return redirect()
+                    ->back()
+                    ->withInput()
+                    ->with('error_message', 'Tidak dapat mengubah status project menjadi aktif karena masih ada project lain yang belum selesai.');
+            }
+        }
 
         $project->update($validated);
 

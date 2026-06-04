@@ -4,6 +4,19 @@
 
 @section('content')
 <div class="max-w-3xl mx-auto space-y-6">
+    <!-- Warning Alert - Jika ada project aktif -->
+    @if(session('error_message'))
+    <div class="bg-red-50 border border-red-200 rounded-xl p-4 flex items-start gap-3">
+        <svg class="w-6 h-6 text-red-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+        </svg>
+        <div>
+            <h3 class="text-sm font-semibold text-red-800">Tidak dapat membuat project baru</h3>
+            <p class="text-sm text-red-700 mt-1">{{ session('error_message') }}</p>
+        </div>
+    </div>
+    @endif
+
     <!-- Header -->
     <div class="flex items-center gap-4">
         <a href="{{ route('admin.projects.index') }}" class="text-gray-600 hover:text-gray-900">
@@ -108,10 +121,12 @@
             <!-- Due Date -->
             <div>
                 <label for="due_date" class="block text-sm font-medium text-gray-700 mb-2">
-                    Due Date
+                    Due Date <span class="text-red-500">*</span>
                 </label>
-                <input type="date" name="due_date" id="due_date" value="{{ old('due_date') }}"
+                <input type="date" name="due_date" id="due_date" value="{{ old('due_date') }}" required
+                    min="{{ date('Y-m-d') }}"
                     class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent @error('due_date') border-red-500 @enderror">
+                <p class="mt-1 text-sm text-gray-500">Tanggal deadline harus diisi dan tidak boleh di masa lalu</p>
                 @error('due_date')
                     <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                 @enderror
