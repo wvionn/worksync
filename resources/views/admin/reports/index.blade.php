@@ -129,7 +129,7 @@
                                     {{ $task->due_date ? \Carbon\Carbon::parse($task->due_date)->format('M d, Y') : 'N/A' }}
                                 </span>
                                 <span class="text-gray-500 truncate">
-                                    Assignee: {{ $task->assignee ? $task->assignee->name : 'Unassigned' }}
+                                    Assignee: {{ $task->user ? $task->user->name : 'Unassigned' }}
                                 </span>
                             </div>
                         </div>

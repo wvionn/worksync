@@ -41,7 +41,7 @@ class ReportController extends Controller
             ->all();
 
         $overdueList = Task::query()
-            ->with(['project', 'assignee'])
+            ->with(['project', 'user'])
             ->where('status', '!=', 'done')
             ->where(function ($query): void {
                 $query
