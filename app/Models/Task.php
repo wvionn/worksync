@@ -20,6 +20,7 @@ class Task extends Model
         'status',
         'priority',
         'due_date',
+        'completed_at',
     ];
 
     protected function casts(): array
