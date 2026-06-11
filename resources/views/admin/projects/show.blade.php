@@ -192,7 +192,7 @@
         </div>
 
         <!-- Kanban Columns -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             <!-- To Do Column -->
             <div class="bg-gray-50 rounded-xl p-4">
                 <div class="flex items-center justify-between mb-4">
@@ -332,6 +332,65 @@
                     @empty
                     <div class="text-center py-8 text-gray-400">
                         <p class="text-sm">No tasks</p>
+                    </div>
+                    @endforelse
+                </div>
+            </div>
+
+            <!-- Overdue Column -->
+            <div class="bg-red-50 rounded-xl p-4">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-bold text-gray-900">Overdue</h3>
+                    @php
+                        $overdueTasks = $project->tasks->filter(function($task) {
+                            return $task->status === 'overdue' || 
+                                   ($task->status !== 'done' && $task->due_date && $task->due_date->isPast());
+                        });
+                    @endphp
+                    <span class="px-2 py-1 bg-red-200 text-red-700 text-sm font-medium rounded-full">
+                        {{ $overdueTasks->count() }}
+                    </span>
+                </div>
+                <div class="space-y-3">
+                    @forelse($overdueTasks as $task)
+                    <div class="bg-white rounded-lg p-4 border-2 border-red-300 hover:shadow-md transition-shadow cursor-pointer">
+                        <div class="flex items-start justify-between mb-2">
+                            <h4 class="font-semibold text-gray-900">{{ $task->title }}</h4>
+                            <span class="px-2 py-1 text-xs font-medium rounded-full
+                                {{ $task->priority === 'urgent' ? 'bg-red-100 text-red-700' : '' }}
+                                {{ $task->priority === 'high' ? 'bg-orange-100 text-orange-700' : '' }}
+                                {{ $task->priority === 'medium' ? 'bg-yellow-100 text-yellow-700' : '' }}
+                                {{ $task->priority === 'low' ? 'bg-blue-100 text-blue-700' : '' }}">
+                                {{ ucfirst($task->priority) }}
+                            </span>
+                        </div>
+                        @if($task->description)
+                        <p class="text-sm text-gray-600 mb-3">{{ Str::limit($task->description, 80) }}</p>
+                        @endif
+                        <div class="flex items-center justify-between text-sm">
+                            @if($task->user)
+                            <div class="flex items-center gap-2">
+                                <div class="w-6 h-6 bg-red-600 rounded-full flex items-center justify-center text-white text-xs">
+                                    {{ substr($task->user->name, 0, 1) }}
+                                </div>
+                                <span class="text-gray-700">{{ $task->user->name }}</span>
+                            </div>
+                            @else
+                            <span class="text-gray-400">Unassigned</span>
+                            @endif
+                            @if($task->due_date)
+                            <div class="flex items-center gap-1">
+                                <svg class="w-3 h-3 text-red-600" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/>
+                                </svg>
+                                <span class="text-red-600 font-medium">{{ $task->due_date->format('M d') }}</span>
+                            </div>
+                            @endif
+                        </div>
+                    </div>
+                    @empty
+                    <div class="text-center py-8 text-gray-400">
+                        <p class="text-sm">No overdue tasks</p>
                     </div>
                     @endforelse
                 </div>

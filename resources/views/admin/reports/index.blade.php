@@ -147,6 +147,115 @@
             </div>
 
         </div>
+
+        <!-- Completed Projects History -->
+        <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+            <div class="flex items-center justify-between mb-4">
+                <div>
+                    <h3 class="text-sm font-bold text-slate-900">Completed Projects History</h3>
+                    <p class="text-xs text-gray-500 mt-1">Recently completed projects with completion details</p>
+                </div>
+                <span class="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-semibold">
+                    {{ $completedProjects->count() }} Projects
+                </span>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead>
+                        <tr class="border-b border-gray-200">
+                            <th class="text-left py-3 px-4 text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                Project Name
+                            </th>
+                            <th class="text-left py-3 px-4 text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                Client
+                            </th>
+                            <th class="text-left py-3 px-4 text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                Owner
+                            </th>
+                            <th class="text-center py-3 px-4 text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                Tasks
+                            </th>
+                            <th class="text-center py-3 px-4 text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                Completion
+                            </th>
+                            <th class="text-left py-3 px-4 text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                Completed Date
+                            </th>
+                            <th class="text-center py-3 px-4 text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                Priority
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse($completedProjects as $project)
+                            <tr class="border-b border-gray-100 hover:bg-gray-50 transition-colors">
+                                <td class="py-3 px-4">
+                                    <a href="{{ route('admin.projects.show', $project) }}" 
+                                       class="font-semibold text-gray-900 hover:text-blue-600 text-sm">
+                                        {{ $project->name }}
+                                    </a>
+                                </td>
+                                <td class="py-3 px-4 text-sm text-gray-600">
+                                    {{ $project->client_name ?? 'N/A' }}
+                                </td>
+                                <td class="py-3 px-4 text-sm text-gray-600">
+                                    {{ $project->owner->name ?? 'N/A' }}
+                                </td>
+                                <td class="py-3 px-4 text-center">
+                                    <span class="inline-flex items-center gap-1 text-xs text-gray-600">
+                                        <span class="font-semibold text-green-600">{{ $project->tasks->where('status', 'done')->count() }}</span>
+                                        <span class="text-gray-400">/</span>
+                                        <span>{{ $project->tasks->count() }}</span>
+                                    </span>
+                                </td>
+                                <td class="py-3 px-4 text-center">
+                                    <div class="flex items-center justify-center gap-2">
+                                        <div class="w-16 h-2 bg-gray-200 rounded-full overflow-hidden">
+                                            <div class="h-full bg-green-500 rounded-full" 
+                                                 style="width: {{ $project->progress }}%"></div>
+                                        </div>
+                                        <span class="text-xs font-semibold text-green-600">
+                                            {{ $project->progress }}%
+                                        </span>
+                                    </div>
+                                </td>
+                                <td class="py-3 px-4 text-sm text-gray-600">
+                                    {{ $project->updated_at->format('M d, Y') }}
+                                    <span class="text-xs text-gray-400 block">
+                                        {{ $project->updated_at->diffForHumans() }}
+                                    </span>
+                                </td>
+                                <td class="py-3 px-4 text-center">
+                                    <span class="px-2 py-1 text-xs font-semibold rounded-full
+                                        @if($project->priority === 'urgent') bg-red-100 text-red-700
+                                        @elseif($project->priority === 'high') bg-orange-100 text-orange-700
+                                        @elseif($project->priority === 'medium') bg-yellow-100 text-yellow-700
+                                        @else bg-gray-100 text-gray-700
+                                        @endif">
+                                        {{ ucfirst($project->priority) }}
+                                    </span>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="7" class="py-12 text-center">
+                                    <div class="flex flex-col items-center justify-center text-gray-400">
+                                        <svg class="w-12 h-12 text-gray-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
+                                            </path>
+                                        </svg>
+                                        <p class="text-sm font-medium">No completed projects yet</p>
+                                        <p class="text-xs mt-1">Completed projects will appear here</p>
+                                    </div>
+                                </td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>

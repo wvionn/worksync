@@ -52,12 +52,21 @@ class ReportController extends Controller
             ->take(8)
             ->get();
 
+        // Get completed projects history
+        $completedProjects = Project::query()
+            ->with(['owner', 'tasks'])
+            ->where('status', 'completed')
+            ->orderBy('updated_at', 'desc')
+            ->take(10)
+            ->get();
+
         return view('admin.reports.index', [
             'projectStatusCounts' => $projectStatusCounts,
             'taskStatusCounts' => $taskStatusCounts,
             'taskPriorityCounts' => $taskPriorityCounts,
             'timeline' => $timeline,
             'overdueList' => $overdueList,
+            'completedProjects' => $completedProjects,
         ]);
     }
 }

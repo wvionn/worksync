@@ -52,6 +52,17 @@ class DashboardController extends Controller
                 ->orderByDesc('updated_at')
                 ->take(3)
                 ->get(),
+            'overdue' => Task::query()
+                ->where(function ($query): void {
+                    $query->where('status', 'overdue')
+                        ->orWhere(function ($q): void {
+                            $q->where('status', '!=', 'done')
+                                ->whereDate('due_date', '<', now()->toDateString());
+                        });
+                })
+                ->orderBy('due_date', 'asc')
+                ->take(3)
+                ->get(),
         ];
 
         $newProjectsThisWeek = Project::query()

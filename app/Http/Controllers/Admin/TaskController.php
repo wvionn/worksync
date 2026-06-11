@@ -46,10 +46,26 @@ class TaskController extends Controller
             ->latest('updated_at')
             ->get();
 
+        $overdueTasks = Task::with('user', 'project')
+            ->where(function ($query): void {
+                $query->where('status', 'overdue')
+                    ->orWhere(function ($q): void {
+                        $q->where('status', '!=', 'done')
+                            ->whereDate('due_date', '<', now()->toDateString());
+                    });
+            })
+            ->when($search !== '', function ($query) use ($search): void {
+                $query->where('title', 'like', "%{$search}%");
+            })
+            ->orderBy('due_date', 'asc')
+            ->orderBy('priority', 'desc')
+            ->get();
+
         return view('admin.tasks.index', [
             'todoTasks' => $todoTasks,
             'doingTasks' => $doingTasks,
             'doneTasks' => $doneTasks,
+            'overdueTasks' => $overdueTasks,
             'projects' => Project::query()->orderBy('name')->get(['id', 'name']),
             'users' => User::query()->orderBy('name')->get(['id', 'name']),
             'search' => $search,
