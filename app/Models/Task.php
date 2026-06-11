@@ -27,6 +27,7 @@ class Task extends Model
     {
         return [
             'due_date' => 'date',
+            'completed_at' => 'datetime',
         ];
     }
 
