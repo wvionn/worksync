@@ -10,12 +10,12 @@
             <h1 class="text-2xl font-bold text-gray-900">Users</h1>
             <p class="text-gray-600 mt-1">Manage team members and permissions</p>
         </div>
-        <button class="btn-primary">
-            <svg class="w-5 h-5 inline-block mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <a href="{{ route('admin.users.create') }}" class="btn-primary inline-flex items-center">
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
             </svg>
             Add User
-        </button>
+        </a>
     </div>
 
     <!-- Users List -->
@@ -53,8 +53,13 @@
                         <td class="px-6 py-4 text-sm text-gray-900">{{ $user->assigned_tasks_count ?? 0 }}</td>
                         <td class="px-6 py-4 text-sm text-gray-600">{{ $user->created_at->format('M d, Y') }}</td>
                         <td class="px-6 py-4 text-right">
-                            <button class="text-blue-600 hover:text-blue-700 mr-3">Edit</button>
-                            <button class="text-red-600 hover:text-red-700">Delete</button>
+                            <a href="{{ route('admin.users.edit', $user) }}" class="text-blue-600 hover:text-blue-700 mr-3 text-sm font-medium">Edit</a>
+                            <form action="{{ route('admin.users.destroy', $user) }}" method="POST" class="inline-block"
+                                  onsubmit="return confirm('Are you sure you want to delete this user?')">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="text-red-600 hover:text-red-700 text-sm font-medium">Delete</button>
+                            </form>
                         </td>
                     </tr>
                     @empty
