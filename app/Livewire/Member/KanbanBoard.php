@@ -118,10 +118,29 @@ class KanbanBoard extends Component
             ->latest('updated_at')
             ->get();
 
+        $overdueTasks = Task::with('project')
+            ->where('user_id', $user->id)
+            ->when(
+                $activeProject,
+                fn ($query) => $query->where('project_id', $activeProject->id),
+                fn ($query) => $query->whereRaw('1 = 0')
+            )
+            ->where(function ($query) {
+                $query->where('status', 'overdue')
+                    ->orWhere(function ($q) {
+                        $q->where('status', '!=', 'done')
+                            ->whereDate('due_date', '<', now()->toDateString());
+                    });
+            })
+            ->orderBy('due_date', 'asc')
+            ->orderBy('priority', 'desc')
+            ->get();
+
         return view('livewire.member.kanban-board', [
             'todoTasks' => $todoTasks,
             'doingTasks' => $doingTasks,
             'doneTasks' => $doneTasks,
+            'overdueTasks' => $overdueTasks,
         ]);
     }
 }

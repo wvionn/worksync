@@ -37,10 +37,7 @@
 
     @php
 
-        $totalProjects =
-            $todoTasks->count()
-            + $doingTasks->count()
-            + $doneTasks->count();
+        $totalProjects = $projectsCount;
 
         $overdueTasks =
             $todoTasks->filter(function ($task) {
@@ -56,7 +53,7 @@
     <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-10">
 
         <!-- My Projects -->
-        <a href="{{ route('member.projects') }}"
+        <a href="{{ route('member.projects.index') }}"
            class="bg-sky-100 rounded-3xl p-8 border border-sky-200 hover:scale-105 transition duration-300">
 
             <h4 class="text-sky-700 text-xs font-bold uppercase tracking-wider">
@@ -74,7 +71,7 @@
         </a>
 
         <!-- Doing -->
-        <a href="{{ route('member.projects') }}"
+        <a href="{{ route('member.projects.index') }}"
            class="bg-blue-600 rounded-3xl p-8 text-white hover:scale-105 transition duration-300">
 
             <h4 class="text-xs font-bold uppercase tracking-wider">
@@ -92,7 +89,7 @@
         </a>
 
         <!-- Done -->
-        <a href="{{ route('member.projects') }}"
+        <a href="{{ route('member.projects.index') }}"
            class="bg-emerald-500 rounded-3xl p-8 text-white hover:scale-105 transition duration-300">
 
             <h4 class="text-xs font-bold uppercase tracking-wider">
@@ -132,53 +129,19 @@
     <!-- Pekerjaan Mendesak -->
     <div class="bg-white rounded-3xl shadow-sm border border-gray-100 p-8">
 
-        <h2 class="text-2xl font-bold text-blue-600 mb-8">
-            🔥 Pekerjaan Mendesak
-        </h2>
+        <div class="flex items-center justify-between mb-8">
+            <h2 class="text-2xl font-bold text-blue-600">
+                🔥 Pekerjaan Mendesak
+            </h2>
+            <span class="px-3 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-700">
+                🔄 Real-time
+            </span>
+        </div>
 
-        <div class="space-y-5">
+        <div class="space-y-5" wire:poll.5s>
 
             @forelse($todoTasks->take(5) as $task)
-
-                <div class="flex items-center justify-between bg-gray-50 rounded-2xl border p-5">
-
-                    <div class="flex items-center gap-4">
-
-                        <div class="w-12 h-12 rounded-xl bg-indigo-100 flex items-center justify-center">
-                            ⚙️
-                        </div>
-
-                        <div>
-
-                            <h3 class="font-bold text-gray-800">
-                                {{ $task->title }}
-                            </h3>
-
-                            <p class="text-sm text-gray-500 uppercase">
-                                {{ $task->project->name ?? 'No Project' }}
-                                •
-                                {{ $task->priority }}
-                            </p>
-
-                        </div>
-
-                    </div>
-
-                    <span class="px-4 py-2 rounded-full text-xs font-semibold
-                        @if($task->status == 'doing')
-                            bg-blue-100 text-blue-600
-                        @elseif($task->status == 'done')
-                            bg-green-100 text-green-600
-                        @else
-                            bg-gray-100 text-gray-600
-                        @endif">
-
-                        {{ ucfirst($task->status) }}
-
-                    </span>
-
-                </div>
-
+                @livewire('member.quick-task-card', ['task' => $task], key('task-'.$task->id))
             @empty
 
                 <div class="text-center py-10 text-gray-400">
