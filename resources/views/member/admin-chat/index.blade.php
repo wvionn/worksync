@@ -1,21 +1,21 @@
 @extends('layouts.member')
 
-@section('header_title', 'Team Chat')
+@section('header_title', 'Hubungi Admin')
 
 @section('content')
 
 <div class="p-8">
     <div class="mb-6">
         <h1 class="text-3xl font-bold text-blue-600">
-            💬 Team Chat
+            💬 Hubungi Admin
         </h1>
         <p class="text-gray-500 mt-2">
-            Diskusi group project dan komunikasi dengan team members
+            Komunikasi langsung dengan admin untuk bantuan dan pertanyaan
         </p>
     </div>
 
-    <!-- Team Chat Component (Group + Members) -->
-    <livewire:member.team-chat-component />
+    <!-- Direct Admin Chat Component -->
+    <livewire:member.chat-component />
 </div>
 
 @endsection
