@@ -9,6 +9,7 @@ use App\Http\Controllers\Admin\NotificationController;
 use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\Member\DashboardController as MemberDashboardController;
 use App\Http\Controllers\Member\TaskController as MemberTaskController;
+use App\Http\Controllers\Member\ProjectController as MemberProjectController;
 use Illuminate\Support\Facades\Route;
 
 
@@ -20,10 +21,14 @@ Route::middleware(['auth', 'role:member'])->prefix('member')->name('member.')->g
     Route::get('/tasks/{task}', [MemberTaskController::class, 'show'])->name('tasks.show');
     Route::patch('/tasks/{task}/status', [MemberTaskController::class, 'updateStatus'])->name('tasks.updateStatus');
 
-    // New Side Menu Routes
+    // Projects
+    Route::get('/projects', [MemberProjectController::class, 'index'])->name('projects.index');
+    Route::get('/projects/{project}', [MemberProjectController::class, 'show'])->name('projects.show');
+
+    // Other Routes
     Route::view('/deadlines', 'member.deadlines.index')->name('deadlines');
-    Route::view('/projects', 'member.projects.index')->name('projects');
-    Route::view('/chat', 'member.chat.index')->name('chat');
+    Route::view('/chat', 'member.chat.index')->name('chat'); // Team chat (groups + members)
+    Route::view('/admin-chat', 'member.admin-chat.index')->name('admin-chat'); // Chat with admin
     Route::view('/profile', 'member.profile.index')->name('profile');
     Route::view('/settings', 'member.settings.index')->name('settings');
 });

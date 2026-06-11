@@ -50,8 +50,8 @@
             </a>
 
             <!-- Projects -->
-            <a href="{{ route('member.projects') }}"
-                class="flex items-center px-3 py-2.5 rounded-xl transition-colors {{ request()->routeIs('member.projects') ? 'bg-teal-700 font-medium' : 'hover:bg-teal-700/50 text-teal-50' }}">
+            <a href="{{ route('member.projects.index') }}"
+                class="flex items-center px-3 py-2.5 rounded-xl transition-colors {{ request()->routeIs('member.projects.index') ? 'bg-teal-700 font-medium' : 'hover:bg-teal-700/50 text-teal-50' }}">
                 <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10">
@@ -85,9 +85,8 @@
             <div class="pt-4 mt-4 border-t border-teal-700/50"></div>
 
             <!-- Hubungi Admin -->
-            <a href="https://wa.me/6281234567890?text=Halo%20Admin,%20saya%20ingin%20bertanya%20seputar%20jobdesk/task%20saya"
-                target="_blank"
-                class="flex items-center px-3 py-2.5 rounded-xl transition-colors hover:bg-teal-700/50 text-teal-50">
+            <a href="{{ route('member.admin-chat') }}"
+                class="flex items-center px-3 py-2.5 rounded-xl transition-colors hover:bg-teal-700/50 text-teal-50 {{ request()->routeIs('member.admin-chat') ? 'bg-teal-700/70' : '' }}">
                 <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z">
@@ -240,6 +239,41 @@
         }
     </script>
     @livewireScripts
+    
+    <!-- Toast Notification System -->
+    <script>
+        document.addEventListener('livewire:init', () => {
+            Livewire.on('show-toast', (event) => {
+                const toast = document.getElementById('toast-notification');
+                const toastMessage = document.getElementById('toast-message');
+                const toastIcon = document.getElementById('toast-icon');
+                
+                if (toast && toastMessage && toastIcon) {
+                    toastMessage.textContent = event[0].message;
+                    
+                    if (event[0].type === 'success') {
+                        toast.className = 'fixed top-4 right-4 z-50 max-w-md bg-green-500 text-white px-6 py-4 rounded-lg shadow-lg flex items-center gap-3 transition-transform transform translate-x-0';
+                        toastIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>';
+                    } else {
+                        toast.className = 'fixed top-4 right-4 z-50 max-w-md bg-red-500 text-white px-6 py-4 rounded-lg shadow-lg flex items-center gap-3 transition-transform transform translate-x-0';
+                        toastIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>';
+                    }
+                    
+                    toast.style.display = 'flex';
+                    
+                    setTimeout(() => {
+                        toast.style.display = 'none';
+                    }, 3000);
+                }
+            });
+        });
+    </script>
+    
+    <!-- Toast Container -->
+    <div id="toast-notification" style="display: none;" class="fixed top-4 right-4 z-50 max-w-md">
+        <svg id="toast-icon" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"></svg>
+        <span id="toast-message"></span>
+    </div>
 </body>
 
 </html>
