@@ -128,3 +128,23 @@ it('admin can mark notifications as read', function () {
 
     expect($activity->fresh()?->is_read)->toBeTrue();
 });
+
+it('admin can view notifications index with activities', function () {
+    $admin = User::factory()->create(['role' => 'admin']);
+    
+    Activity::query()->create([
+        'user_id' => $admin->id,
+        'title' => 'Test Notification',
+        'description' => 'This is a test notification',
+        'category' => 'system',
+        'is_read' => false,
+        'occurred_at' => now()->subHours(2),
+    ]);
+
+    $response = $this->actingAs($admin)
+        ->get(route('admin.notifications.index'));
+
+    $response->assertOk()
+        ->assertSee('Test Notification')
+        ->assertSee('2 hours ago');
+});

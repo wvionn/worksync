@@ -1,8 +1,6 @@
 @extends('layouts.member')
 
-@section('header_title')
-Project Details
-@endsection
+@section('header_title', 'Project Details')
 
 @section('content')
 <div class="space-y-6">

@@ -10,6 +10,7 @@ class Activity extends Model
 
     protected $casts = [
         'is_read' => 'boolean',
+        'occurred_at' => 'datetime',
     ];
 
     public function user()
