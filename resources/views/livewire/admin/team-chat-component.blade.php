@@ -4,7 +4,7 @@
         <div class="col-span-1 border-r border-gray-200 flex flex-col overflow-hidden">
             <!-- Sidebar Header -->
             <div class="p-4 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-indigo-50">
-                <h3 class="font-bold text-gray-900 text-sm">💬 Team Communication</h3>
+                <h3 class="font-bold text-gray-900 text-sm">Team Communication</h3>
                 <p class="text-xs text-gray-500 mt-1">Groups & Members</p>
             </div>
 
@@ -159,7 +159,7 @@
                                     <span class="text-xs font-semibold text-gray-700">{{ $msg->sender->name }}</span>
                                     @if($msg->sender->role === 'admin')
                                     <span class="px-2 py-0.5 bg-yellow-100 text-yellow-700 rounded-full text-[10px] font-bold">
-                                        👑 ADMIN
+                                        ADMIN
                                     </span>
                                     @endif
                                 </div>

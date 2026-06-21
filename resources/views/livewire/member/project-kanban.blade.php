@@ -47,7 +47,7 @@
             <!-- To Do Column -->
             <div class="bg-gray-50 rounded-xl p-4">
                 <div class="flex items-center justify-between mb-4">
-                    <h3 class="text-lg font-bold text-gray-900">📋 To Do</h3>
+                    <h3 class="text-lg font-bold text-gray-900">To Do</h3>
                     <span class="px-2 py-1 bg-gray-200 text-gray-700 text-sm font-medium rounded-full">
                         {{ $todoTasks->count() }}
                     </span>
@@ -100,7 +100,7 @@
             <!-- Doing Column -->
             <div class="bg-blue-50 rounded-xl p-4">
                 <div class="flex items-center justify-between mb-4">
-                    <h3 class="text-lg font-bold text-gray-900">⚡ Doing</h3>
+                    <h3 class="text-lg font-bold text-gray-900">Doing</h3>
                     <span class="px-2 py-1 bg-blue-200 text-blue-700 text-sm font-medium rounded-full">
                         {{ $doingTasks->count() }}
                     </span>
@@ -153,7 +153,7 @@
             <!-- Done Column -->
             <div class="bg-green-50 rounded-xl p-4">
                 <div class="flex items-center justify-between mb-4">
-                    <h3 class="text-lg font-bold text-gray-900">✅ Done</h3>
+                    <h3 class="text-lg font-bold text-gray-900">Done</h3>
                     <span class="px-2 py-1 bg-green-200 text-green-700 text-sm font-medium rounded-full">
                         {{ $doneTasks->count() }}
                     </span>
@@ -202,7 +202,7 @@
             <!-- Overdue Column -->
             <div class="bg-red-50 rounded-xl p-4">
                 <div class="flex items-center justify-between mb-4">
-                    <h3 class="text-lg font-bold text-gray-900">⚠️ Overdue</h3>
+                    <h3 class="text-lg font-bold text-gray-900">Overdue</h3>
                     <span class="px-2 py-1 bg-red-200 text-red-700 text-sm font-medium rounded-full">
                         {{ $overdueTasks->count() }}
                     </span>

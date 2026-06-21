@@ -81,7 +81,7 @@ class ProjectKanban extends Component
 
         $this->dispatch('show-alert', [
             'type' => 'success',
-            'message' => 'Status task berhasil diperbarui! ✅'
+            'message' => 'Status task berhasil diperbarui.'
         ]);
 
         // Refresh data

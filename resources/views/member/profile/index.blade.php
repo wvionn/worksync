@@ -44,7 +44,7 @@ $performance = $totalTasks > 0
     <div>
 
         <h1 class="text-3xl font-bold text-slate-800">
-            My Profile 👩‍💻
+            My Profile
         </h1>
 
         <p class="text-slate-500">

@@ -19,8 +19,8 @@
     <!-- Greeting -->
     <div class="flex items-center gap-6 mb-10">
 
-        <div class="w-24 h-24 rounded-full bg-gray-100 flex items-center justify-center text-5xl shadow-sm">
-            👩
+        <div class="w-24 h-24 rounded-full bg-blue-100 flex items-center justify-center text-3xl font-extrabold text-blue-600 shadow-sm">
+            {{ substr(Auth::user()->name, 0, 1) }}
         </div>
 
         <div>
@@ -29,7 +29,7 @@
             </h1>
 
             <p class="text-gray-500 text-xl mt-2">
-                Ayo selesaikan tugasmu hari ini 🐾
+                Ayo selesaikan tugasmu hari ini
             </p>
         </div>
 
@@ -131,10 +131,10 @@
 
         <div class="flex items-center justify-between mb-8">
             <h2 class="text-2xl font-bold text-blue-600">
-                🔥 Pekerjaan Mendesak
+                Pekerjaan Mendesak
             </h2>
             <span class="px-3 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-700">
-                🔄 Real-time
+                Real-time
             </span>
         </div>
 

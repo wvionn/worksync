@@ -11,7 +11,7 @@
 
         <div>
             <h1 class="text-3xl font-bold text-slate-800">
-                Deadlines 📅
+                Deadlines
             </h1>
 
             <p class="text-slate-500 mt-1">
@@ -127,7 +127,7 @@
 
             <div class="flex items-center gap-2 mb-5">
 
-                <span class="text-2xl">⚡</span>
+                <span class="w-3 h-3 rounded-full bg-yellow-500"></span>
 
                 <h2 class="font-bold text-lg text-slate-800">
                     Due Today
@@ -162,7 +162,7 @@
 
             <div class="flex items-center gap-2 mb-5">
 
-                <span class="text-2xl">⏰</span>
+                <span class="w-3 h-3 rounded-full bg-blue-500"></span>
 
                 <h2 class="font-bold text-lg text-slate-800">
                     Upcoming
@@ -197,7 +197,7 @@
 
             <div class="flex items-center gap-2 mb-5">
 
-                <span class="text-2xl">🚨</span>
+                <span class="w-3 h-3 rounded-full bg-red-500"></span>
 
                 <h2 class="font-bold text-lg text-slate-800">
                     Overdue
@@ -246,8 +246,10 @@ class="hidden fixed inset-0 bg-black/30 backdrop-blur-md z-50 flex items-center 
 
         <div class="text-center">
 
-            <div class="text-5xl mb-3">
-                📅
+            <div class="w-16 h-16 bg-blue-50 rounded-2xl flex items-center justify-center mx-auto mb-3">
+                <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                </svg>
             </div>
 
             <h2 id="deadlineDate"
@@ -297,9 +299,9 @@ class="hidden fixed inset-0 bg-black/30 backdrop-blur-md z-50 flex items-center 
             <select
             class="w-full mt-2 rounded-2xl border border-slate-200 p-3">
 
-                <option>📋 To Do</option>
-                <option>⚡ Doing</option>
-                <option>✅ Done</option>
+                <option>To Do</option>
+                <option>Doing</option>
+                <option>Done</option>
 
             </select>
 
@@ -308,7 +310,7 @@ class="hidden fixed inset-0 bg-black/30 backdrop-blur-md z-50 flex items-center 
         <button
         class="w-full mt-6 bg-red-50 text-red-600 py-3 rounded-2xl hover:bg-red-100 font-semibold">
 
-            🗑 Delete Task
+            Delete Task
 
         </button>
 

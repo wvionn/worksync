@@ -3,7 +3,7 @@
     <div class="col-span-1 bg-white rounded-xl border border-gray-200 flex flex-col overflow-hidden">
         <!-- Search Projects -->
         <div class="p-4 border-b border-gray-200 bg-blue-50">
-            <h3 class="font-bold text-gray-900 mb-2">👥 Group Chats</h3>
+            <h3 class="font-bold text-gray-900 mb-2">Group Chats</h3>
             <input type="text" placeholder="Search projects..." 
                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
                    x-data x-on:input="
@@ -108,7 +108,7 @@
                                 </div>
                                 <span class="text-xs font-semibold text-gray-700">{{ $msg->sender->name }}</span>
                                 <span class="text-xs text-gray-400">
-                                    {{ $msg->sender->role === 'admin' ? '👑 Admin' : '👤 Member' }}
+                                    {{ $msg->sender->role === 'admin' ? 'Admin' : 'Member' }}
                                 </span>
                             </div>
                             @endif

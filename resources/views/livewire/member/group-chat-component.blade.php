@@ -75,7 +75,7 @@
                                 <span class="text-xs font-semibold text-gray-700">{{ $msg->sender->name }}</span>
                                 @if($msg->sender->role === 'admin')
                                 <span class="px-2 py-0.5 bg-yellow-100 text-yellow-700 rounded-full text-[10px] font-bold">
-                                    👑 ADMIN
+                                    ADMIN
                                 </span>
                                 @endif
                             </div>

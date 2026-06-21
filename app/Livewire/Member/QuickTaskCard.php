@@ -50,7 +50,7 @@ class QuickTaskCard extends Component
 
         $this->dispatch('show-toast', [
             'type' => 'success',
-            'message' => 'Status updated! ✅'
+            'message' => 'Status updated!'
         ]);
 
         $this->dispatch('task-updated');
