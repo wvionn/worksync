@@ -12,7 +12,11 @@
                 <div>
                     <p class="text-sm font-medium text-gray-600 uppercase">Total Projects</p>
                     <h3 class="text-3xl font-bold text-gray-900 mt-2">{{ $totalProjects }}</h3>
-                    <p class="text-sm text-green-600 mt-2">+4%</p>
+                    @if($projectChangeRate > 0)
+                        <p class="text-sm text-green-600 mt-2">+{{ $projectChangeRate }}% this week</p>
+                    @else
+                        <p class="text-sm text-gray-500 mt-2">0% this week</p>
+                    @endif
                 </div>
                 <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
                     <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -28,7 +32,11 @@
                 <div>
                     <p class="text-sm font-medium text-gray-600 uppercase">Total Tasks Assigned</p>
                     <h3 class="text-3xl font-bold text-gray-900 mt-2">{{ $totalTasks }}</h3>
-                    <p class="text-sm text-green-600 mt-2">+12%</p>
+                    @if($taskChangeRate > 0)
+                        <p class="text-sm text-green-600 mt-2">+{{ $taskChangeRate }}% this week</p>
+                    @else
+                        <p class="text-sm text-gray-500 mt-2">0% this week</p>
+                    @endif
                 </div>
                 <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
                     <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">

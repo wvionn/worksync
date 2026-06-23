@@ -10,6 +10,7 @@ use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\Member\DashboardController as MemberDashboardController;
 use App\Http\Controllers\Member\TaskController as MemberTaskController;
 use App\Http\Controllers\Member\ProjectController as MemberProjectController;
+use App\Http\Controllers\Member\SettingController as MemberSettingController;
 use Illuminate\Support\Facades\Route;
 
 
@@ -26,11 +27,12 @@ Route::middleware(['auth', 'role:member'])->prefix('member')->name('member.')->g
     Route::get('/projects/{project}', [MemberProjectController::class, 'show'])->name('projects.show');
 
     // Other Routes
-    Route::view('/deadlines', 'member.deadlines.index')->name('deadlines');
+    Route::get('/deadlines', [MemberTaskController::class, 'deadlines'])->name('deadlines');
     Route::view('/chat', 'member.chat.index')->name('chat'); // Team chat (groups + members)
     Route::view('/admin-chat', 'member.admin-chat.index')->name('admin-chat'); // Chat with admin
     Route::view('/profile', 'member.profile.index')->name('profile');
-    Route::view('/settings', 'member.settings.index')->name('settings');
+    Route::get('/settings', [MemberSettingController::class, 'index'])->name('settings');
+    Route::put('/settings', [MemberSettingController::class, 'update'])->name('settings.update');
 });
 
 // Admin Routes

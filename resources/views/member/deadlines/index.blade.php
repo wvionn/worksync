@@ -59,31 +59,40 @@
             <div class="font-semibold text-slate-500">Fri</div>
             <div class="font-semibold text-slate-500">Sat</div>
 
-            @for($i = 1; $i <= 31; $i++)
+            <!-- Empty slots before day 1 -->
+            @for($i = 0; $i < $startOfWeek; $i++)
+                <div class="h-14 bg-transparent border border-transparent"></div>
+            @endfor
+
+            <!-- Days of the month -->
+            @for($day = 1; $day <= $daysInMonth; $day++)
 
             <div
-                onclick="openDeadlineModal({{ $i }})"
+                onclick="openDeadlineModal({{ $day }})"
                 class="relative h-14 rounded-2xl border border-slate-100 bg-slate-50 hover:bg-blue-50 transition cursor-pointer flex items-center justify-center font-medium
 
-                {{ $i == now()->day ? 'bg-blue-500 text-white font-bold' : '' }}
+                {{ $day == now()->day ? 'bg-blue-500 text-white font-bold' : '' }}
             ">
 
-                {{ $i }}
+                {{ $day }}
 
-                @if($i == 8)
-                <span class="absolute bottom-2 w-2 h-2 bg-red-500 rounded-full"></span>
-                @endif
+                @if(isset($tasksByDay[$day]))
+                    @php
+                        $dayTasks = $tasksByDay[$day];
+                        $hasOverdue = $dayTasks->contains(fn($t) => $t->isOverdue());
+                        $hasDueToday = $dayTasks->contains(fn($t) => $t->due_date->isToday() && $t->status !== 'done');
+                        $allCompleted = $dayTasks->every(fn($t) => $t->status === 'done');
+                    @endphp
 
-                @if($i == 12)
-                <span class="absolute bottom-2 w-2 h-2 bg-yellow-500 rounded-full"></span>
-                @endif
-
-                @if($i == 18)
-                <span class="absolute bottom-2 w-2 h-2 bg-blue-500 rounded-full"></span>
-                @endif
-
-                @if($i == 24)
-                <span class="absolute bottom-2 w-2 h-2 bg-green-500 rounded-full"></span>
+                    @if($allCompleted)
+                        <span class="absolute bottom-2 w-2 h-2 bg-green-500 rounded-full"></span>
+                    @elseif($hasOverdue)
+                        <span class="absolute bottom-2 w-2 h-2 bg-red-500 rounded-full"></span>
+                    @elseif($hasDueToday)
+                        <span class="absolute bottom-2 w-2 h-2 bg-yellow-500 rounded-full"></span>
+                    @else
+                        <span class="absolute bottom-2 w-2 h-2 bg-blue-500 rounded-full"></span>
+                    @endif
                 @endif
 
             </div>
@@ -123,7 +132,7 @@
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
         <!-- Today -->
-        <div class="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm">
+        <div class="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm flex flex-col">
 
             <div class="flex items-center gap-2 mb-5">
 
@@ -135,30 +144,41 @@
 
             </div>
 
-            <div class="space-y-4">
+            <div class="space-y-4 flex-1">
 
-                <div class="p-4 rounded-2xl bg-yellow-50 border border-yellow-200">
-
-                    <h3 class="font-semibold text-slate-800">
-                        Fix Header Responsive
-                    </h3>
-
-                    <p class="text-sm text-slate-500 mt-1">
-                        Portfolio Web
-                    </p>
-
-                    <span class="inline-block mt-3 text-xs bg-yellow-200 text-yellow-800 px-3 py-1 rounded-full">
-                        Due Today
-                    </span>
-
+                @forelse($dueTodayTasks as $task)
+                <div class="p-4 rounded-2xl bg-yellow-50 border border-yellow-200 hover:shadow-sm transition">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <h3 class="font-semibold text-slate-800">
+                                {{ $task->title }}
+                            </h3>
+                            <p class="text-sm text-slate-500 mt-1">
+                                {{ $task->project->name ?? 'No Project' }}
+                            </p>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-between mt-3">
+                        <span class="inline-block text-xs bg-yellow-200 text-yellow-800 px-3 py-1 rounded-full">
+                            Due Today
+                        </span>
+                        <a href="{{ route('member.tasks.show', $task->id) }}" class="text-xs text-blue-600 font-semibold hover:underline">
+                            View Details →
+                        </a>
+                    </div>
                 </div>
+                @empty
+                <div class="flex items-center justify-center h-24 text-slate-400 text-sm">
+                    No tasks due today.
+                </div>
+                @endforelse
 
             </div>
 
         </div>
 
         <!-- Upcoming -->
-        <div class="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm">
+        <div class="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm flex flex-col">
 
             <div class="flex items-center gap-2 mb-5">
 
@@ -170,30 +190,41 @@
 
             </div>
 
-            <div class="space-y-4">
+            <div class="space-y-4 flex-1">
 
-                <div class="p-4 rounded-2xl bg-blue-50 border border-blue-200">
-
-                    <h3 class="font-semibold text-slate-800">
-                        Setup Authentication
-                    </h3>
-
-                    <p class="text-sm text-slate-500 mt-1">
-                        E-Commerce App
-                    </p>
-
-                    <span class="inline-block mt-3 text-xs bg-blue-200 text-blue-800 px-3 py-1 rounded-full">
-                        Tomorrow
-                    </span>
-
+                @forelse($upcomingTasks as $task)
+                <div class="p-4 rounded-2xl bg-blue-50 border border-blue-200 hover:shadow-sm transition">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <h3 class="font-semibold text-slate-800">
+                                {{ $task->title }}
+                            </h3>
+                            <p class="text-sm text-slate-500 mt-1">
+                                {{ $task->project->name ?? 'No Project' }}
+                            </p>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-between mt-3">
+                        <span class="inline-block text-xs bg-blue-200 text-blue-800 px-3 py-1 rounded-full">
+                            {{ $task->due_date->format('M d, Y') }}
+                        </span>
+                        <a href="{{ route('member.tasks.show', $task->id) }}" class="text-xs text-blue-600 font-semibold hover:underline">
+                            View Details →
+                        </a>
+                    </div>
                 </div>
+                @empty
+                <div class="flex items-center justify-center h-24 text-slate-400 text-sm">
+                    No upcoming tasks.
+                </div>
+                @endforelse
 
             </div>
 
         </div>
 
         <!-- Overdue -->
-        <div class="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm">
+        <div class="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm flex flex-col">
 
             <div class="flex items-center gap-2 mb-5">
 
@@ -205,23 +236,34 @@
 
             </div>
 
-            <div class="space-y-4">
+            <div class="space-y-4 flex-1">
 
-                <div class="p-4 rounded-2xl bg-red-50 border border-red-200">
-
-                    <h3 class="font-semibold text-slate-800">
-                        Create Report Module
-                    </h3>
-
-                    <p class="text-sm text-slate-500 mt-1">
-                        Internal Tools
-                    </p>
-
-                    <span class="inline-block mt-3 text-xs bg-red-200 text-red-800 px-3 py-1 rounded-full">
-                        2 Days Late
-                    </span>
-
+                @forelse($overdueTasks as $task)
+                <div class="p-4 rounded-2xl bg-red-50 border border-red-200 hover:shadow-sm transition">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <h3 class="font-semibold text-slate-800">
+                                {{ $task->title }}
+                            </h3>
+                            <p class="text-sm text-slate-500 mt-1">
+                                {{ $task->project->name ?? 'No Project' }}
+                            </p>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-between mt-3">
+                        <span class="inline-block text-xs bg-red-200 text-red-800 px-3 py-1 rounded-full">
+                            {{ $task->due_date->diffForHumans() }}
+                        </span>
+                        <a href="{{ route('member.tasks.show', $task->id) }}" class="text-xs text-blue-600 font-semibold hover:underline">
+                            View Details →
+                        </a>
+                    </div>
                 </div>
+                @empty
+                <div class="flex items-center justify-center h-24 text-slate-400 text-sm">
+                    No overdue tasks.
+                </div>
+                @endforelse
 
             </div>
 
@@ -257,61 +299,19 @@ class="hidden fixed inset-0 bg-black/30 backdrop-blur-md z-50 flex items-center 
             </h2>
 
             <p class="text-slate-500 mt-2">
-                Task Deadline
+                Task Deadline(s)
             </p>
 
         </div>
 
-        <div class="mt-8 space-y-4">
-
-            <div class="p-4 rounded-2xl bg-yellow-50 border border-yellow-200">
-
-                <h3 class="font-semibold">
-                    Fix Header Responsive
-                </h3>
-
-                <p class="text-sm text-slate-500">
-                    Portfolio Web
-                </p>
-
-            </div>
-
-            <div class="p-4 rounded-2xl bg-blue-50 border border-blue-200">
-
-                <h3 class="font-semibold">
-                    Setup Authentication
-                </h3>
-
-                <p class="text-sm text-slate-500">
-                    E-Commerce App
-                </p>
-
-            </div>
-
+        <!-- Dynamic Tasks List -->
+        <div id="deadlineTasksList" class="mt-8 space-y-4 max-h-[300px] overflow-y-auto pr-2">
+            <!-- Populated via Javascript -->
         </div>
 
-        <div class="mt-6">
-
-            <label class="text-sm text-slate-500">
-                Status
-            </label>
-
-            <select
-            class="w-full mt-2 rounded-2xl border border-slate-200 p-3">
-
-                <option>To Do</option>
-                <option>Doing</option>
-                <option>Done</option>
-
-            </select>
-
-        </div>
-
-        <button
-        class="w-full mt-6 bg-red-50 text-red-600 py-3 rounded-2xl hover:bg-red-100 font-semibold">
-
-            Delete Task
-
+        <button onclick="closeDeadlineModal()"
+        class="w-full mt-6 bg-slate-100 text-slate-700 py-3 rounded-2xl hover:bg-slate-200 font-semibold transition">
+            Close
         </button>
 
     </div>
@@ -319,22 +319,83 @@ class="hidden fixed inset-0 bg-black/30 backdrop-blur-md z-50 flex items-center 
 </div>
 
 <script>
+const tasksByDay = @json($tasksByDay);
 
 function openDeadlineModal(day){
+    const formattedMonth = "{{ now()->format('F Y') }}";
+    document.getElementById('deadlineDate').innerText = day + ' ' + formattedMonth;
 
-    document.getElementById('deadlineDate').innerText =
-    day + ' June 2026';
+    const tasksContainer = document.getElementById('deadlineTasksList');
+    tasksContainer.innerHTML = '';
+
+    const dayTasks = tasksByDay[day] || [];
+
+    if (dayTasks.length === 0) {
+        tasksContainer.innerHTML = `
+            <div class="text-center py-8 text-slate-400">
+                <p>No tasks due on this day.</p>
+            </div>
+        `;
+    } else {
+        dayTasks.forEach(task => {
+            const projectName = task.project ? task.project.name : 'No Project';
+            const actionUrl = `/member/tasks/${task.id}/status`;
+            
+            let statusColor = 'bg-slate-50 border-slate-200';
+            if (task.status === 'done') statusColor = 'bg-green-50 border-green-200';
+            else if (task.status === 'doing') statusColor = 'bg-blue-50 border-blue-200';
+            
+            const taskHtml = `
+                <div class="p-4 rounded-2xl border ${statusColor}">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <h3 class="font-semibold text-slate-800 text-left">${escapeHtml(task.title)}</h3>
+                            <p class="text-sm text-slate-500 text-left mt-0.5">${escapeHtml(projectName)}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <form action="${actionUrl}" method="POST" class="flex flex-col gap-1.5">
+                            <input type="hidden" name="_token" value="{{ csrf_token() }}">
+                            <input type="hidden" name="_method" value="PATCH">
+                            <label class="text-xs text-slate-500 text-left font-medium">Update Status</label>
+                            <select name="status" onchange="this.form.submit()" class="w-full rounded-xl border border-slate-200 p-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <option value="todo" ${task.status === 'todo' ? 'selected' : ''}>To Do</option>
+                                <option value="doing" ${task.status === 'doing' ? 'selected' : ''}>Doing</option>
+                                <option value="done" ${task.status === 'done' ? 'selected' : ''}>Done</option>
+                            </select>
+                        </form>
+                    </div>
+                    
+                    <div class="mt-3 pt-3 border-t border-slate-100 flex justify-end">
+                        <a href="/member/tasks/${task.id}" class="text-xs text-blue-600 font-semibold hover:underline">
+                            View Details →
+                        </a>
+                    </div>
+                </div>
+            `;
+            tasksContainer.insertAdjacentHTML('beforeend', taskHtml);
+        });
+    }
 
     document.getElementById('deadlineModal')
     .classList.remove('hidden');
 }
 
 function closeDeadlineModal(){
-
     document.getElementById('deadlineModal')
     .classList.add('hidden');
 }
 
+function escapeHtml(text) {
+    if (!text) return '';
+    return text
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
 </script>
 
 @endsection

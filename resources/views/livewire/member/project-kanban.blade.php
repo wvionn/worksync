@@ -14,25 +14,7 @@
         </div>
     </div>
 
-    <!-- Task Breakdown Stats -->
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
-        <div class="bg-white rounded-xl border border-gray-200 p-6">
-            <h3 class="text-sm font-medium text-gray-600 mb-2">Total Tasks</h3>
-            <p class="text-3xl font-bold text-gray-900">{{ $taskBreakdown['total'] }}</p>
-        </div>
-        <div class="bg-white rounded-xl border border-gray-200 p-6">
-            <h3 class="text-sm font-medium text-gray-600 mb-2">To Do</h3>
-            <p class="text-3xl font-bold text-gray-700">{{ $taskBreakdown['todo'] }}</p>
-        </div>
-        <div class="bg-white rounded-xl border border-gray-200 p-6">
-            <h3 class="text-sm font-medium text-gray-600 mb-2">In Progress</h3>
-            <p class="text-3xl font-bold text-blue-600">{{ $taskBreakdown['in_progress'] }}</p>
-        </div>
-        <div class="bg-white rounded-xl border border-gray-200 p-6">
-            <h3 class="text-sm font-medium text-gray-600 mb-2">Completed</h3>
-            <p class="text-3xl font-bold text-green-600">{{ $taskBreakdown['completed'] }}</p>
-        </div>
-    </div>
+
 
     <!-- Kanban Board -->
     <div class="space-y-4">

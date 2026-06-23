@@ -73,6 +73,16 @@ class DashboardController extends Controller
             ->whereBetween('created_at', [now()->startOfWeek(), now()->endOfWeek()])
             ->count();
 
+        $previousProjects = Project::where('created_at', '<', now()->startOfWeek())->count();
+        $projectChangeRate = $previousProjects > 0
+            ? (int) round(($newProjectsThisWeek / $previousProjects) * 100)
+            : ($newProjectsThisWeek > 0 ? 100 : 0);
+
+        $previousTasks = Task::where('created_at', '<', now()->startOfWeek())->count();
+        $taskChangeRate = $previousTasks > 0
+            ? (int) round(($newTasksThisWeek / $previousTasks) * 100)
+            : ($newTasksThisWeek > 0 ? 100 : 0);
+
         $recentActivities = Activity::query()
             ->orderByDesc('occurred_at')
             ->orderByDesc('created_at')
@@ -89,6 +99,8 @@ class DashboardController extends Controller
             'boardPreview' => $boardPreview,
             'newProjectsThisWeek' => $newProjectsThisWeek,
             'newTasksThisWeek' => $newTasksThisWeek,
+            'projectChangeRate' => $projectChangeRate,
+            'taskChangeRate' => $taskChangeRate,
             'recentActivities' => $recentActivities,
         ]);
     }

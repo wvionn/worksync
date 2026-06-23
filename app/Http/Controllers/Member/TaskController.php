@@ -10,8 +10,66 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 
+use Illuminate\View\View;
+
 class TaskController extends Controller
 {
+    /**
+     * Show member deadlines page.
+     */
+    public function deadlines(Request $request): View
+    {
+        $user = $request->user();
+        $now = now();
+        
+        // Get all tasks with due dates in the current month
+        $tasks = Task::where('user_id', $user->id)
+            ->whereNotNull('due_date')
+            ->whereYear('due_date', $now->year)
+            ->whereMonth('due_date', $now->month)
+            ->with('project')
+            ->get();
+            
+        // Group tasks by day of month
+        $tasksByDay = $tasks->groupBy(function($task) {
+            return $task->due_date->day;
+        });
+
+        // Tasks due today
+        $dueTodayTasks = Task::where('user_id', $user->id)
+            ->whereDate('due_date', $now->toDateString())
+            ->where('status', '!=', 'done')
+            ->with('project')
+            ->get();
+
+        // Upcoming tasks
+        $upcomingTasks = Task::where('user_id', $user->id)
+            ->whereDate('due_date', '>', $now->toDateString())
+            ->where('status', '!=', 'done')
+            ->with('project')
+            ->orderBy('due_date', 'asc')
+            ->get();
+
+        // Overdue tasks
+        $overdueTasks = Task::where('user_id', $user->id)
+            ->whereDate('due_date', '<', $now->toDateString())
+            ->where('status', '!=', 'done')
+            ->with('project')
+            ->orderBy('due_date', 'asc')
+            ->get();
+
+        $daysInMonth = $now->daysInMonth;
+        $startOfWeek = $now->copy()->startOfMonth()->dayOfWeek; // 0 = Sunday, 1 = Monday, etc.
+
+        return view('member.deadlines.index', compact(
+            'tasksByDay',
+            'dueTodayTasks',
+            'upcomingTasks',
+            'overdueTasks',
+            'daysInMonth',
+            'startOfWeek'
+        ));
+    }
     /**
      * Update task status (for member to change status)
      */
