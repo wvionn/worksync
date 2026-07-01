@@ -38,7 +38,7 @@
     </div>
 
     <!-- Project Overview Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+    <div class="grid grid-cols-1 md:grid-cols-5 gap-6">
         <!-- Status Card -->
         <div class="bg-white rounded-xl border border-gray-200 p-6">
             <div class="flex items-center justify-between">
@@ -234,6 +234,10 @@
             <p class="text-3xl font-bold text-blue-600">{{ $taskBreakdown['in_progress'] }}</p>
         </div>
         <div class="bg-white rounded-xl border border-gray-200 p-6">
+            <h3 class="text-sm font-medium text-gray-600 mb-2">In Review</h3>
+            <p class="text-3xl font-bold text-yellow-600">{{ $taskBreakdown['in_review'] }}</p>
+        </div>
+        <div class="bg-white rounded-xl border border-gray-200 p-6">
             <h3 class="text-sm font-medium text-gray-600 mb-2">Completed</h3>
             <p class="text-3xl font-bold text-green-600">{{ $taskBreakdown['completed'] }}</p>
         </div>
@@ -252,7 +256,7 @@
         </div>
 
         <!-- Kanban Columns -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-6">
             <!-- To Do Column -->
             <div class="bg-gray-50 rounded-xl p-4">
                 <div class="flex items-center justify-between mb-4">
@@ -349,6 +353,59 @@
                 </div>
             </div>
 
+            <!-- In Review Column -->
+            <div class="bg-yellow-50 rounded-xl p-4">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-bold text-gray-900">In Review</h3>
+                    <span class="px-2 py-1 bg-yellow-200 text-yellow-700 text-sm font-medium rounded-full">
+                        {{ $project->tasks->where('status', 'in_review')->count() }}
+                    </span>
+                </div>
+                <div class="space-y-3">
+                    @forelse($project->tasks->where('status', 'in_review') as $task)
+                    <div onclick="window.location.href='{{ route('admin.tasks.show', $task) }}'" class="bg-white rounded-lg p-4 border border-yellow-200 hover:shadow-md transition-shadow cursor-pointer">
+                        <div class="flex items-start justify-between mb-2">
+                            <h4 class="font-semibold text-gray-900">{{ $task->title }}</h4>
+                            <span class="px-2 py-1 text-xs font-medium rounded-full
+                                {{ $task->priority === 'urgent' ? 'bg-red-100 text-red-700' : '' }}
+                                {{ $task->priority === 'high' ? 'bg-orange-100 text-orange-700' : '' }}
+                                {{ $task->priority === 'medium' ? 'bg-yellow-100 text-yellow-700' : '' }}
+                                {{ $task->priority === 'low' ? 'bg-blue-100 text-blue-700' : '' }}">
+                                {{ ucfirst($task->priority) }}
+                            </span>
+                        </div>
+                        @if($task->description)
+                        <p class="text-sm text-gray-600 mb-3">{{ Str::limit($task->description, 80) }}</p>
+                        @endif
+                        <div class="flex items-center justify-between text-sm">
+                            @if($task->user)
+                            <div class="flex items-center gap-2">
+                                <div class="w-6 h-6 bg-yellow-500 rounded-full flex items-center justify-center text-white text-xs">
+                                    {{ substr($task->user->name, 0, 1) }}
+                                </div>
+                                <span class="text-gray-700">{{ $task->user->name }}</span>
+                            </div>
+                            @else
+                            <span class="text-gray-400">Unassigned</span>
+                            @endif
+                            @if($task->due_date)
+                            <span class="{{ $task->isOverdue() ? 'text-red-600 font-medium' : 'text-gray-500' }}">{{ $task->formatted_due_date_short }}</span>
+                            @endif
+                        </div>
+                        <div class="mt-3">
+                            <span class="inline-flex w-full justify-center px-2 py-1 text-xs font-semibold rounded-lg bg-yellow-100 text-yellow-700 border border-yellow-200">
+                                Awaiting Admin Review
+                            </span>
+                        </div>
+                    </div>
+                    @empty
+                    <div class="text-center py-8 text-gray-400">
+                        <p class="text-sm">No tasks in review</p>
+                    </div>
+                    @endforelse
+                </div>
+            </div>
+
             <!-- Done Column -->
             <div class="bg-green-50 rounded-xl p-4">
                 <div class="flex items-center justify-between mb-4">
@@ -404,7 +461,7 @@
                     @php
                         $overdueTasks = $project->tasks->filter(function($task) {
                             return $task->status === 'overdue' || 
-                                   ($task->status !== 'done' && $task->due_date && $task->due_date->isPast());
+                                   (!in_array($task->status, ['done', 'in_review']) && $task->due_date && $task->due_date->isPast());
                         });
                     @endphp
                     <span class="px-2 py-1 bg-red-200 text-red-700 text-sm font-medium rounded-full">

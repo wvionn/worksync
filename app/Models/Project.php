@@ -102,6 +102,7 @@ class Project extends Model
             'total' => $this->tasks()->count(),
             'completed' => $this->tasks()->where('status', 'done')->count(),
             'in_progress' => $this->tasks()->where('status', 'doing')->count(),
+            'in_review' => $this->tasks()->where('status', 'in_review')->count(),
             'todo' => $this->tasks()->where('status', 'todo')->count(),
             'recently_added' => $this->tasks()->where('created_at', '>=', now()->subWeek())->count(),
         ];

@@ -19,7 +19,7 @@
     </div>
 
     <!-- Kanban Board -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-6">
         <!-- To Do Column -->
         <div class="bg-gray-50 rounded-xl p-4 border border-gray-200/50">
             <div class="flex items-center justify-between mb-4">
@@ -186,8 +186,69 @@
             </div>
         </div>
 
-        <!-- Done Column (Combining Done & In Review visually or using column) -->
-        <!-- Let's show Done tasks here -->
+        <!-- In Review Column -->
+        <div class="bg-yellow-50/50 rounded-xl p-4 border border-yellow-100">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-md font-bold text-yellow-900">In Review</h2>
+                <span class="px-2 py-0.5 bg-yellow-200 text-yellow-800 text-xs font-bold rounded-full">
+                    {{ $inReviewTasks->count() ?? 0 }}
+                </span>
+            </div>
+            <div class="space-y-3">
+                @forelse($inReviewTasks ?? [] as $task)
+                <div class="bg-white rounded-lg p-4 border border-yellow-200 hover:shadow-md transition duration-200">
+                    <div class="flex flex-wrap items-center gap-1.5 mb-2">
+                        <span class="px-2 py-0.5 text-[10px] font-bold rounded
+                            {{ $task->priority === 'urgent' ? 'bg-red-100 text-red-700' : '' }}
+                            {{ $task->priority === 'high' ? 'bg-orange-100 text-orange-700' : '' }}
+                            {{ $task->priority === 'medium' ? 'bg-yellow-100 text-yellow-700' : '' }}
+                            {{ $task->priority === 'low' ? 'bg-green-100 text-green-700' : '' }}">
+                            {{ ucfirst($task->priority) }}
+                        </span>
+                        <span class="px-2 py-0.5 text-[10px] font-bold bg-yellow-100 text-yellow-700 rounded">Needs Review</span>
+                    </div>
+
+                    <h3 class="font-semibold text-gray-900 mb-1 hover:text-blue-600 transition-colors text-sm">
+                        <a href="{{ route('admin.tasks.show', $task) }}">{{ $task->title }}</a>
+                    </h3>
+
+                    <p class="text-[11px] text-gray-500 font-semibold mb-2">{{ $task->project->name ?? 'No Project' }}</p>
+
+                    @if($task->description)
+                    <p class="text-xs text-gray-600 mb-3">{{ Str::limit($task->description, 60) }}</p>
+                    @endif
+
+                    <div class="flex items-center justify-between text-xs pt-2 border-t border-gray-100">
+                        @if($task->user)
+                        <div class="flex items-center gap-1.5">
+                            <div class="w-5 h-5 bg-yellow-500 rounded-full flex items-center justify-center text-white text-[10px] font-bold">
+                                {{ substr($task->user->name, 0, 1) }}
+                            </div>
+                            <span class="text-gray-600 text-[11px] font-medium">{{ $task->user->name }}</span>
+                        </div>
+                        @else
+                        <span class="text-gray-400 text-[11px] italic">Unassigned</span>
+                        @endif
+                        @if($task->due_date)
+                        <span class="{{ $task->isOverdue() ? 'text-red-600 font-semibold' : 'text-gray-500' }} text-[11px]">{{ $task->formatted_due_date_short }}</span>
+                        @endif
+                    </div>
+
+                    <div class="mt-3">
+                        <span class="inline-flex w-full justify-center px-2 py-1 text-xs font-semibold rounded-lg bg-yellow-100 text-yellow-700 border border-yellow-200">
+                            Awaiting Admin Review
+                        </span>
+                    </div>
+                </div>
+                @empty
+                <div class="text-center py-8 text-gray-400">
+                    <p class="text-sm">No tasks in review</p>
+                </div>
+                @endforelse
+            </div>
+        </div>
+
+        <!-- Done Column -->
         <div class="bg-green-50/50 rounded-xl p-4 border border-green-100">
             <div class="flex items-center justify-between mb-4">
                 <h2 class="text-md font-bold text-green-900">Done</h2>

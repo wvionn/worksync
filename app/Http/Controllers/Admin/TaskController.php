@@ -68,11 +68,19 @@ class TaskController extends Controller
             ->latest('updated_at')
             ->get();
 
+        $inReviewTasks = Task::with('user', 'project')
+            ->where('status', 'in_review')
+            ->when($search !== '', function ($query) use ($search): void {
+                $query->where('title', 'like', "%{$search}%");
+            })
+            ->latest('updated_at')
+            ->get();
+
         $overdueTasks = Task::with('user', 'project')
             ->where(function ($query): void {
                 $query->where('status', 'overdue')
                     ->orWhere(function ($q): void {
-                        $q->where('status', '!=', 'done')
+                        $q->whereNotIn('status', ['done', 'in_review'])
                             ->where(function ($inner) {
                                 $inner->whereDate('due_date', '<', now()->toDateString())
                                     ->orWhere(function ($sub) {
@@ -92,6 +100,7 @@ class TaskController extends Controller
         return view('admin.tasks.index', [
             'todoTasks' => $todoTasks,
             'doingTasks' => $doingTasks,
+            'inReviewTasks' => $inReviewTasks,
             'doneTasks' => $doneTasks,
             'overdueTasks' => $overdueTasks,
             'projects' => Project::with('members:id,name')->orderBy('name')->get(),
