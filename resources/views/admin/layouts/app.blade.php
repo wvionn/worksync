@@ -83,14 +83,15 @@
                                     </svg>
                                 </button>
 
-                                <form action="{{ route('admin.tasks.index') }}" method="GET" class="relative hidden min-[560px]:block">
+                                <form action="{{ route('admin.search.index') }}" method="GET" class="relative hidden min-[560px]:block">
                                     <svg class="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" viewBox="0 0 20 20" fill="currentColor">
                                         <path fill-rule="evenodd" d="M8.5 3a5.5 5.5 0 1 0 3.47 9.77l3.63 3.63a1 1 0 0 0 1.4-1.42l-3.62-3.62A5.5 5.5 0 0 0 8.5 3M5 8.5a3.5 3.5 0 1 1 7 0 3.5 3.5 0 0 1-7 0" clip-rule="evenodd" />
                                     </svg>
                                     <input
                                         type="text"
-                                        name="search"
-                                        placeholder="Search tasks..."
+                                        name="q"
+                                        value="{{ request('q') }}"
+                                        placeholder="Search projects, tasks, users..."
                                         class="w-[300px] rounded-2xl border-slate-200 bg-white/90 py-2.5 pl-10 pr-4 text-sm text-slate-700 shadow-sm focus:border-blue-400 focus:ring-blue-400"
                                     >
                                 </form>

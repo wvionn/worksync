@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\TaskController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\NotificationController;
+use App\Http\Controllers\Admin\SearchController;
 use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\Admin\TaskActionController;
 use App\Http\Controllers\Member\DashboardController as MemberDashboardController;
@@ -52,6 +53,8 @@ Route::middleware(['auth', 'role:member'])->prefix('member')->name('member.')->g
 // Admin Routes
 Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/search', [SearchController::class, 'index'])->name('search.index');
+    Route::get('/profile', [SettingController::class, 'profile'])->name('profile');
     Route::resource('projects', ProjectController::class);
     Route::patch('/tasks/{task}/complete', [TaskController::class, 'complete'])->name('tasks.complete');
     Route::patch('/tasks/{task}/status', [TaskController::class, 'updateStatus'])->name('tasks.updateStatus');
