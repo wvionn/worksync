@@ -98,7 +98,6 @@ class TaskController extends Controller
             'users' => User::query()->orderBy('name')->get(['id', 'name']),
             'search' => $search,
             'statusFilter' => $statusFilter,
-            'statusOptions' => ['todo', 'doing', 'done', 'overdue'],
             'priorityOptions' => ['low', 'medium', 'high', 'urgent'],
         ]);
     }
@@ -108,7 +107,6 @@ class TaskController extends Controller
         return view('admin.tasks.create', [
             'projects' => Project::with('members:id,name')->orderBy('name')->get(),
             'users' => User::query()->orderBy('name')->get(['id', 'name']),
-            'statusOptions' => ['todo', 'doing', 'done', 'overdue', 'in_review'],
             'priorityOptions' => ['low', 'medium', 'high', 'urgent'],
             'labels' => \App\Models\Label::all(),
             'milestones' => \App\Models\Milestone::all(),
@@ -122,7 +120,6 @@ class TaskController extends Controller
             'project_id' => ['nullable', 'exists:projects,id'],
             'title' => ['required', 'string', 'max:160'],
             'description' => ['nullable', 'string'],
-            'status' => ['required', Rule::in(['todo', 'doing', 'done', 'overdue', 'in_review'])],
             'priority' => ['required', Rule::in(['low', 'medium', 'high', 'urgent'])],
             'user_id' => ['nullable', 'exists:users,id'],
             'due_date' => ['nullable', 'date'],
@@ -135,20 +132,7 @@ class TaskController extends Controller
         if (!$validated['is_blocked']) {
             $validated['blocker_description'] = null;
         }
-
-        // Dependency check
-        if (in_array($validated['status'], ['doing', 'done'])) {
-            $dependencyIds = $request->input('dependency_ids', []);
-            $incompleteDependencies = Task::whereIn('id', $dependencyIds)
-                ->where('status', '!=', 'done')
-                ->exists();
-            if ($incompleteDependencies) {
-                return redirect()
-                    ->back()
-                    ->withInput()
-                    ->with('error_message', 'Tidak dapat mengubah status task karena masih ada dependency task yang belum selesai.');
-            }
-        }
+        $validated['status'] = 'todo';
 
         $validated = $this->normalizeTaskState($validated);
 
@@ -214,7 +198,6 @@ class TaskController extends Controller
             'task' => $task,
             'projects' => Project::with('members:id,name')->orderBy('name')->get(),
             'users' => User::query()->orderBy('name')->get(['id', 'name']),
-            'statusOptions' => ['todo', 'doing', 'done', 'overdue', 'in_review'],
             'priorityOptions' => ['low', 'medium', 'high', 'urgent'],
             'labels' => \App\Models\Label::all(),
             'milestones' => \App\Models\Milestone::all(),
@@ -228,7 +211,6 @@ class TaskController extends Controller
             'project_id' => ['nullable', 'exists:projects,id'],
             'title' => ['required', 'string', 'max:160'],
             'description' => ['nullable', 'string'],
-            'status' => ['required', Rule::in(['todo', 'doing', 'done', 'overdue', 'in_review'])],
             'priority' => ['required', Rule::in(['low', 'medium', 'high', 'urgent'])],
             'user_id' => ['nullable', 'exists:users,id'],
             'due_date' => ['nullable', 'date'],
@@ -241,23 +223,7 @@ class TaskController extends Controller
         if (!$validated['is_blocked']) {
             $validated['blocker_description'] = null;
         }
-
-        // Dependency check
-        if (in_array($validated['status'], ['doing', 'done'])) {
-            $dependencyIds = $request->has('dependency_ids') 
-                ? $request->input('dependency_ids', []) 
-                : $task->dependencies()->pluck('depends_on_task_id')->toArray();
-
-            $incompleteDependencies = Task::whereIn('id', $dependencyIds)
-                ->where('status', '!=', 'done')
-                ->exists();
-            if ($incompleteDependencies) {
-                return redirect()
-                    ->back()
-                    ->withInput()
-                    ->with('error_message', 'Tidak dapat mengubah status task karena masih ada dependency task yang belum selesai.');
-            }
-        }
+        $validated['status'] = $task->status;
 
         $validated = $this->normalizeTaskState($validated);
 
@@ -336,49 +302,9 @@ class TaskController extends Controller
 
     public function updateStatus(Request $request, Task $task): RedirectResponse
     {
-        $validated = $request->validate([
-            'status' => ['required', Rule::in(['todo', 'doing', 'done', 'overdue', 'in_review'])],
-        ]);
-
-        // Dependency check
-        if (in_array($validated['status'], ['doing', 'done'])) {
-            $incompleteDependencies = $task->dependencies()
-                ->where('status', '!=', 'done')
-                ->exists();
-            if ($incompleteDependencies) {
-                return redirect()
-                    ->back()
-                    ->with('error_message', 'Tidak dapat mengubah status task karena masih ada dependency task yang belum selesai.');
-            }
-        }
-
-        $oldStatus = $task->status;
-        
-        $updateData = [
-            'status' => $validated['status'],
-        ];
-        
-        if ($validated['status'] === 'done') {
-            $updateData['completed_at'] = now();
-        } else {
-            $updateData['completed_at'] = null;
-        }
-        
-        $task->update($updateData);
-
-        Activity::create([
-            'user_id' => $request->user()->id,
-            'title' => 'Task status updated',
-            'description' => "Task '{$task->title}' status changed from {$oldStatus} to {$validated['status']}.",
-            'category' => 'task',
-            'is_read' => false,
-            'link' => route('admin.tasks.show', $task),
-            'occurred_at' => now(),
-        ]);
-
         return redirect()
             ->back()
-            ->with('success_message', 'Status task berhasil diperbarui.');
+            ->with('error_message', 'Status task dikelola oleh member. Admin hanya dapat approve atau reject task yang masuk review.');
     }
 
     /**

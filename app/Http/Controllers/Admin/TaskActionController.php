@@ -8,7 +8,6 @@ use App\Models\Attachment;
 use App\Models\Comment;
 use App\Models\Milestone;
 use App\Models\Project;
-use App\Models\Subtask;
 use App\Models\Task;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -63,42 +62,6 @@ class TaskActionController extends Controller
 
         $comment->delete();
         return redirect()->back()->with('success_message', 'Comment deleted successfully.');
-    }
-
-    public function postSubtask(Request $request, Task $task): RedirectResponse
-    {
-        $this->authorizeTaskAccess($task);
-
-        $validated = $request->validate([
-            'title' => ['required', 'string', 'max:190'],
-        ]);
-
-        Subtask::create([
-            'task_id' => $task->id,
-            'title' => $validated['title'],
-            'is_completed' => false,
-        ]);
-
-        return redirect()->back()->with('success_message', 'Subtask added successfully.');
-    }
-
-    public function toggleSubtask(Subtask $subtask): RedirectResponse
-    {
-        $this->authorizeTaskAccess($subtask->task);
-
-        $subtask->update([
-            'is_completed' => !$subtask->is_completed,
-        ]);
-
-        return redirect()->back()->with('success_message', 'Subtask checklist updated.');
-    }
-
-    public function deleteSubtask(Subtask $subtask): RedirectResponse
-    {
-        $this->authorizeTaskAccess($subtask->task);
-
-        $subtask->delete();
-        return redirect()->back()->with('success_message', 'Subtask deleted.');
     }
 
     public function postAttachment(Request $request, Task $task): RedirectResponse

@@ -118,66 +118,6 @@
                 @endif
             </div>
 
-            <!-- Subtasks Card -->
-            <div class="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
-                <div class="flex items-center justify-between mb-4">
-                    <h2 class="text-lg font-bold text-gray-900">Subtasks Checklist</h2>
-                    @php
-                        $subtasksCount = $task->subtasks->count();
-                        $completedSubtasks = $task->subtasks->where('is_completed', true)->count();
-                        $progress = $subtasksCount > 0 ? (int) round(($completedSubtasks / $subtasksCount) * 100) : 0;
-                    @endphp
-                    <span class="text-sm font-semibold text-gray-500">{{ $completedSubtasks }}/{{ $subtasksCount }} Completed</span>
-                </div>
-
-                <!-- Progress Bar -->
-                @if($subtasksCount > 0)
-                <div class="w-full bg-gray-100 rounded-full h-2 mb-4">
-                    <div class="bg-blue-600 h-2 rounded-full transition-all duration-300" style="width: {{ $progress }}%"></div>
-                </div>
-                @endif
-
-                <!-- List -->
-                <div class="space-y-3">
-                    @forelse($task->subtasks as $subtask)
-                    <div class="flex items-center justify-between py-2 px-3 bg-gray-50 rounded-lg border border-gray-100 group">
-                        <div class="flex items-center gap-3">
-                            <form method="POST" action="{{ route('admin.subtasks.toggle', $subtask) }}">
-                                @csrf
-                                @method('PATCH')
-                                <input type="checkbox" onchange="this.form.submit()" {{ $subtask->is_completed ? 'checked' : '' }}
-                                    class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500 cursor-pointer">
-                            </form>
-                            <span class="text-sm font-medium {{ $subtask->is_completed ? 'line-through text-gray-400' : 'text-gray-900' }}">
-                                {{ $subtask->title }}
-                            </span>
-                        </div>
-                        <form method="POST" action="{{ route('admin.subtasks.destroy', $subtask) }}">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="text-gray-400 hover:text-red-600 transition-colors opacity-0 group-hover:opacity-100">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-                                </svg>
-                            </button>
-                        </form>
-                    </div>
-                    @empty
-                    <p class="text-sm text-gray-400 italic">No subtasks checklist created.</p>
-                    @endforelse
-
-                    <!-- Add Form -->
-                    <form method="POST" action="{{ route('admin.tasks.subtasks', $task) }}" class="flex items-center gap-2 pt-2">
-                        @csrf
-                        <input type="text" name="title" required placeholder="Add new checklist item..."
-                            class="flex-1 px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
-                        <button type="submit" class="px-4 py-1.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg text-sm shadow transition-colors">
-                            Add
-                        </button>
-                    </form>
-                </div>
-            </div>
-
             <!-- Attachments Card -->
             <div class="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
                 <h2 class="text-lg font-bold text-gray-900 mb-4">Attachments</h2>

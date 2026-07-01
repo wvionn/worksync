@@ -44,9 +44,6 @@ Route::middleware(['auth', 'role:member'])->prefix('member')->name('member.')->g
     // Task Actions
     Route::post('/tasks/{task}/comments', [TaskActionController::class, 'postComment'])->name('tasks.comments');
     Route::delete('/comments/{comment}', [TaskActionController::class, 'deleteComment'])->name('comments.destroy');
-    Route::post('/tasks/{task}/subtasks', [TaskActionController::class, 'postSubtask'])->name('tasks.subtasks');
-    Route::patch('/subtasks/{subtask}/toggle', [TaskActionController::class, 'toggleSubtask'])->name('subtasks.toggle');
-    Route::delete('/subtasks/{subtask}', [TaskActionController::class, 'deleteSubtask'])->name('subtasks.destroy');
     Route::post('/tasks/{task}/attachments', [TaskActionController::class, 'postAttachment'])->name('tasks.attachments');
     Route::delete('/attachments/{attachment}', [TaskActionController::class, 'deleteAttachment'])->name('attachments.destroy');
     Route::post('/tasks/{task}/toggle-blocker', [TaskActionController::class, 'toggleBlocker'])->name('tasks.toggle-blocker');
@@ -77,9 +74,6 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     // Task Actions
     Route::post('/tasks/{task}/comments', [TaskActionController::class, 'postComment'])->name('tasks.comments');
     Route::delete('/comments/{comment}', [TaskActionController::class, 'deleteComment'])->name('comments.destroy');
-    Route::post('/tasks/{task}/subtasks', [TaskActionController::class, 'postSubtask'])->name('tasks.subtasks');
-    Route::patch('/subtasks/{subtask}/toggle', [TaskActionController::class, 'toggleSubtask'])->name('subtasks.toggle');
-    Route::delete('/subtasks/{subtask}', [TaskActionController::class, 'deleteSubtask'])->name('subtasks.destroy');
     Route::post('/tasks/{task}/attachments', [TaskActionController::class, 'postAttachment'])->name('tasks.attachments');
     Route::delete('/attachments/{attachment}', [TaskActionController::class, 'deleteAttachment'])->name('attachments.destroy');
     Route::post('/tasks/{task}/toggle-blocker', [TaskActionController::class, 'toggleBlocker'])->name('tasks.toggle-blocker');

@@ -89,19 +89,10 @@
                         @endif
                     </div>
 
-                    <!-- Status Selector Form -->
                     <div class="mt-3">
-                        <form method="POST" action="{{ route('admin.tasks.updateStatus', $task) }}">
-                            @csrf
-                            @method('PATCH')
-                            <select name="status" onchange="this.form.submit()"
-                                class="w-full px-2 py-1 text-xs border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white cursor-pointer">
-                                <option value="todo" selected>To Do</option>
-                                <option value="doing">Doing</option>
-                                <option value="in_review">In Review</option>
-                                <option value="done">Done</option>
-                            </select>
-                        </form>
+                        <span class="inline-flex w-full justify-center px-2 py-1 text-xs font-semibold rounded-lg bg-gray-100 text-gray-700 border border-gray-200">
+                            To Do
+                        </span>
                     </div>
                 </div>
                 @empty
@@ -181,19 +172,10 @@
                         @endif
                     </div>
 
-                    <!-- Status Selector Form -->
                     <div class="mt-3">
-                        <form method="POST" action="{{ route('admin.tasks.updateStatus', $task) }}">
-                            @csrf
-                            @method('PATCH')
-                            <select name="status" onchange="this.form.submit()"
-                                class="w-full px-2 py-1 text-xs border border-blue-200 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white cursor-pointer">
-                                <option value="todo">To Do</option>
-                                <option value="doing" selected>Doing</option>
-                                <option value="in_review">In Review</option>
-                                <option value="done">Done</option>
-                            </select>
-                        </form>
+                        <span class="inline-flex w-full justify-center px-2 py-1 text-xs font-semibold rounded-lg bg-blue-100 text-blue-700 border border-blue-200">
+                            Doing
+                        </span>
                     </div>
                 </div>
                 @empty
@@ -271,19 +253,10 @@
                         @endif
                     </div>
 
-                    <!-- Status Selector Form -->
                     <div class="mt-3">
-                        <form method="POST" action="{{ route('admin.tasks.updateStatus', $task) }}">
-                            @csrf
-                            @method('PATCH')
-                            <select name="status" onchange="this.form.submit()"
-                                class="w-full px-2 py-1 text-xs border border-green-200 rounded-lg focus:ring-2 focus:ring-green-500 bg-white cursor-pointer">
-                                <option value="todo">To Do</option>
-                                <option value="doing">Doing</option>
-                                <option value="in_review">In Review</option>
-                                <option value="done" selected>Done</option>
-                            </select>
-                        </form>
+                        <span class="inline-flex w-full justify-center px-2 py-1 text-xs font-semibold rounded-lg bg-green-100 text-green-700 border border-green-200">
+                            Done
+                        </span>
                     </div>
                 </div>
                 @empty
@@ -368,20 +341,10 @@
                         @endif
                     </div>
 
-                    <!-- Status Selector Form -->
                     <div class="mt-3">
-                        <form method="POST" action="{{ route('admin.tasks.updateStatus', $task) }}">
-                            @csrf
-                            @method('PATCH')
-                            <select name="status" onchange="this.form.submit()"
-                                class="w-full px-2 py-1 text-xs border border-red-300 rounded-lg focus:ring-2 focus:ring-red-500 bg-white cursor-pointer text-red-700">
-                                <option value="todo" {{ $task->status === 'todo' ? 'selected' : '' }}>To Do</option>
-                                <option value="doing" {{ $task->status === 'doing' ? 'selected' : '' }}>Doing</option>
-                                <option value="in_review" {{ $task->status === 'in_review' ? 'selected' : '' }}>In Review</option>
-                                <option value="done" {{ $task->status === 'done' ? 'selected' : '' }}>Done</option>
-                                <option value="overdue" selected>Overdue</option>
-                            </select>
-                        </form>
+                        <span class="inline-flex w-full justify-center px-2 py-1 text-xs font-semibold rounded-lg bg-red-100 text-red-700 border border-red-200">
+                            Overdue
+                        </span>
                     </div>
                 </div>
                 @empty
