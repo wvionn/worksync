@@ -19,7 +19,7 @@
 
     <!-- Header -->
     <div class="flex items-center gap-4">
-        <a href="{{ route('admin.projects.show', $project) }}" class="text-gray-600 hover:text-gray-900">
+        <a href="{{ route('admin.projects.index') }}" class="text-gray-600 hover:text-gray-900">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
             </svg>
@@ -135,7 +135,7 @@
 
             <!-- Form Actions -->
             <div class="flex items-center justify-end gap-3 pt-4 border-t border-gray-200">
-                <a href="{{ route('admin.projects.show', $project) }}" class="btn-secondary">
+                <a href="{{ route('admin.projects.index') }}" class="btn-secondary">
                     Cancel
                 </a>
                 <button type="submit" class="btn-primary">
