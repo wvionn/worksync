@@ -42,6 +42,7 @@ class TaskActionController extends Controller
         ]);
 
         Activity::create([
+            'task_id' => $task->id,
             'user_id' => Auth::id(),
             'title' => 'Comment posted',
             'description' => "Posted comment on task '{$task->title}'",
@@ -86,6 +87,7 @@ class TaskActionController extends Controller
         ]);
 
         Activity::create([
+            'task_id' => $task->id,
             'user_id' => Auth::id(),
             'title' => 'File attached',
             'description' => "Uploaded attachment {$fileName} to task '{$task->title}'",
@@ -123,6 +125,7 @@ class TaskActionController extends Controller
             ]);
 
             Activity::create([
+                'task_id' => $task->id,
                 'user_id' => Auth::id(),
                 'title' => 'Task unblocked',
                 'description' => "Task '{$task->title}' was marked resolved.",
@@ -144,6 +147,7 @@ class TaskActionController extends Controller
             ]);
 
             Activity::create([
+                'task_id' => $task->id,
                 'user_id' => Auth::id(),
                 'title' => 'Task blocked',
                 'description' => "Task '{$task->title}' was blocked: " . $validated['blocker_description'],
@@ -169,6 +173,7 @@ class TaskActionController extends Controller
         ]);
 
         Activity::create([
+            'task_id' => $task->id,
             'user_id' => Auth::id(),
             'title' => 'Task approved',
             'description' => "Task '{$task->title}' was approved and marked done.",
@@ -204,6 +209,7 @@ class TaskActionController extends Controller
         ]);
 
         Activity::create([
+            'task_id' => $task->id,
             'user_id' => Auth::id(),
             'title' => 'Task review rejected',
             'description' => "Task '{$task->title}' review was rejected: " . $validated['feedback'],

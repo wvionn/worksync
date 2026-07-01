@@ -158,6 +158,7 @@ class TaskController extends Controller
         }
 
         Activity::create([
+            'task_id' => $task->id,
             'user_id' => $request->user()->id,
             'title' => 'Task created',
             'description' => "Task {$task->title} was created.",
@@ -253,6 +254,7 @@ class TaskController extends Controller
         }
 
         Activity::create([
+            'task_id' => $task->id,
             'user_id' => $request->user()->id,
             'title' => 'Task updated',
             'description' => "Task {$task->title} was updated.",
@@ -295,6 +297,7 @@ class TaskController extends Controller
         ]);
 
         Activity::create([
+            'task_id' => $task->id,
             'user_id' => $request->user()->id,
             'title' => 'Task completed',
             'description' => "Task {$task->title} was completed.",

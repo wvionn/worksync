@@ -53,6 +53,20 @@ class KanbanBoard extends Component
             }
         }
 
+        if (in_array($newStatus, ['doing', 'done'])) {
+            $blockerMessage = $task->blockBecauseOfIncompleteDependencies(
+                Auth::id(),
+                route('member.tasks.show', $task)
+            );
+
+            if ($blockerMessage) {
+                session()->flash('error_message', $blockerMessage);
+                return;
+            }
+        }
+
+        $task->resolveDependencyBlockerIfClear();
+
         $oldStatus = $task->status;
         $task->update([
             'status' => $newStatus,
@@ -61,6 +75,7 @@ class KanbanBoard extends Component
 
         // Create activity log
         Activity::create([
+            'task_id' => $task->id,
             'user_id' => Auth::id(),
             'title' => 'Task status updated',
             'description' => "Task '{$task->title}' status changed from {$oldStatus} to {$newStatus}.",

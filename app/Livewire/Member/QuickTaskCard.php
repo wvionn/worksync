@@ -31,6 +31,23 @@ class QuickTaskCard extends Component
             return;
         }
 
+        if (in_array($newStatus, ['doing', 'done'])) {
+            $blockerMessage = $this->task->blockBecauseOfIncompleteDependencies(
+                Auth::id(),
+                route('member.tasks.show', $this->task)
+            );
+
+            if ($blockerMessage) {
+                $this->dispatch('show-toast', [
+                    'type' => 'error',
+                    'message' => $blockerMessage
+                ]);
+                return;
+            }
+        }
+
+        $this->task->resolveDependencyBlockerIfClear();
+
         $oldStatus = $this->task->status;
         $this->task->update([
             'status' => $newStatus,
@@ -39,6 +56,7 @@ class QuickTaskCard extends Component
 
         // Create activity log
         Activity::create([
+            'task_id' => $this->task->id,
             'user_id' => Auth::id(),
             'title' => 'Task status updated',
             'description' => "Task '{$this->task->title}' status changed from {$oldStatus} to {$newStatus}.",

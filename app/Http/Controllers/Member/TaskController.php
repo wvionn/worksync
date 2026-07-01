@@ -90,16 +90,20 @@ class TaskController extends Controller
 
         // Dependency check
         if (in_array($validated['status'], ['doing', 'in_review', 'done'])) {
-            $incompleteDependencies = $task->dependencies()
-                ->where('status', '!=', 'done')
-                ->exists();
-            if ($incompleteDependencies) {
+            $blockerMessage = $task->blockBecauseOfIncompleteDependencies(
+                $request->user()->id,
+                route('member.tasks.show', $task)
+            );
+
+            if ($blockerMessage) {
                 if ($request->expectsJson()) {
-                    return response()->json(['error' => 'Tidak dapat mengubah status task karena masih ada dependency task yang belum selesai.'], 422);
+                    return response()->json(['error' => $blockerMessage], 422);
                 }
-                return redirect()->back()->with('error_message', 'Tidak dapat mengubah status task karena masih ada dependency task yang belum selesai.');
+                return redirect()->back()->with('error_message', $blockerMessage);
             }
         }
+
+        $task->resolveDependencyBlockerIfClear();
 
         $oldStatus = $task->status;
         $task->update([
@@ -109,6 +113,7 @@ class TaskController extends Controller
 
         // Create activity log
         Activity::create([
+            'task_id' => $task->id,
             'user_id' => $request->user()->id,
             'title' => 'Task status updated',
             'description' => "Task '{$task->title}' status changed from {$oldStatus} to {$validated['status']}.",

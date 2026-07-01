@@ -80,6 +80,72 @@ class Task extends Model
         return $this->belongsToMany(Task::class, 'task_dependencies', 'depends_on_task_id', 'task_id');
     }
 
+    public function incompleteDependencies()
+    {
+        return $this->dependencies()
+            ->where('status', '!=', 'done')
+            ->orderBy('title')
+            ->get();
+    }
+
+    public function dependencyBlockerMessage(): ?string
+    {
+        $dependencies = $this->incompleteDependencies();
+
+        if ($dependencies->isEmpty()) {
+            return null;
+        }
+
+        return 'Menunggu predecessor task selesai: ' . $dependencies->pluck('title')->join(', ') . '.';
+    }
+
+    public function blockBecauseOfIncompleteDependencies(int $userId, string $link): ?string
+    {
+        $message = $this->dependencyBlockerMessage();
+
+        if (!$message) {
+            return null;
+        }
+
+        $alreadyRecorded = $this->is_blocked && $this->blocker_description === $message;
+
+        $this->update([
+            'is_blocked' => true,
+            'blocker_description' => $message,
+        ]);
+
+        if (!$alreadyRecorded) {
+            Activity::create([
+                'task_id' => $this->id,
+                'user_id' => $userId,
+                'title' => 'Task blocked by dependency',
+                'description' => "Task '{$this->title}' blocked. {$message}",
+                'category' => 'task',
+                'is_read' => false,
+                'link' => $link,
+                'occurred_at' => now(),
+            ]);
+        }
+
+        return $message;
+    }
+
+    public function resolveDependencyBlockerIfClear(): void
+    {
+        if (!$this->is_blocked || !str_starts_with((string) $this->blocker_description, 'Menunggu predecessor task selesai:')) {
+            return;
+        }
+
+        if ($this->incompleteDependencies()->isNotEmpty()) {
+            return;
+        }
+
+        $this->update([
+            'is_blocked' => false,
+            'blocker_description' => null,
+        ]);
+    }
+
     public function milestone(): BelongsTo
     {
         return $this->belongsTo(Milestone::class);
