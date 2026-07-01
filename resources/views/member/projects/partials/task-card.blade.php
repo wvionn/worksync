@@ -25,7 +25,7 @@
             @endif
             @if($task->due_date)
             <span class="text-gray-500">
-                {{ $task->due_date->format('M d') }}
+                {{ $task->formatted_due_date_short }}
             </span>
             @endif
         </div>

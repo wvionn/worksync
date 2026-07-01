@@ -106,6 +106,52 @@
     </div>
 
 
+    <!-- Milestones and Activity Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+        <!-- Milestones Section -->
+        <div class="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
+            <h2 class="text-lg font-bold text-gray-900 mb-4">Project Milestones</h2>
+            <div class="space-y-4 max-h-60 overflow-y-auto pr-2">
+                @forelse($project->milestones as $milestone)
+                <div class="p-3 bg-gray-50 rounded-lg border border-gray-100">
+                    <div class="flex items-center justify-between mb-1">
+                        <h3 class="font-bold text-gray-900 text-xs">{{ $milestone->title }}</h3>
+                        <span class="text-[10px] text-gray-500 font-semibold">Due: {{ $milestone->due_date ? $milestone->due_date->format('M d, Y') : 'No date' }}</span>
+                    </div>
+                    <div class="flex items-center justify-between text-[11px] text-gray-600 mb-1">
+                        <span>{{ $milestone->description ?: 'No details' }}</span>
+                        <span class="font-bold text-teal-700">{{ $milestone->progress }}%</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-1">
+                        <div class="bg-teal-600 h-1 rounded-full" style="width: {{ $milestone->progress }}%"></div>
+                    </div>
+                </div>
+                @empty
+                <p class="text-xs text-gray-400 italic text-center py-4">No milestones defined for this project.</p>
+                @endforelse
+            </div>
+        </div>
+
+        <!-- Project History & Activity Log -->
+        <div class="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
+            <h2 class="text-lg font-bold text-gray-900 mb-4">Project Activity Log</h2>
+            <div class="space-y-3 max-h-60 overflow-y-auto pr-2">
+                @forelse($activities as $act)
+                <div class="flex gap-2.5 text-xs">
+                    <div class="w-1.5 h-1.5 rounded-full bg-teal-600 mt-1.5 flex-shrink-0"></div>
+                    <div>
+                        <p class="text-gray-800 font-semibold">{{ $act->title }} <span class="text-[10px] text-gray-400 font-normal">by {{ $act->user->name }}</span></p>
+                        <p class="text-gray-600 text-[10px]">{{ $act->description }}</p>
+                        <p class="text-gray-400 text-[9px] mt-0.5">{{ $act->occurred_at->diffForHumans() }}</p>
+                    </div>
+                </div>
+                @empty
+                <p class="text-xs text-gray-400 italic text-center py-4">No activities logged yet.</p>
+                @endforelse
+            </div>
+        </div>
+    </div>
+
     <!-- Livewire Kanban Board with Real-time Updates -->
     @livewire('member.project-kanban', ['projectId' => $project->id])
 

@@ -206,7 +206,7 @@
                     </div>
                     <div class="flex items-center justify-between mt-3">
                         <span class="inline-block text-xs bg-blue-200 text-blue-800 px-3 py-1 rounded-full">
-                            {{ $task->due_date->format('M d, Y') }}
+                            {{ $task->formatted_due_date }}
                         </span>
                         <a href="{{ route('member.tasks.show', $task->id) }}" class="text-xs text-blue-600 font-semibold hover:underline">
                             View Details →
@@ -252,7 +252,7 @@
                     </div>
                     <div class="flex items-center justify-between mt-3">
                         <span class="inline-block text-xs bg-red-200 text-red-800 px-3 py-1 rounded-full">
-                            {{ $task->due_date->diffForHumans() }}
+                            {{ $task->formatted_due_date }} ({{ $task->due_date->diffForHumans() }})
                         </span>
                         <a href="{{ route('member.tasks.show', $task->id) }}" class="text-xs text-blue-600 font-semibold hover:underline">
                             View Details →

@@ -80,7 +80,7 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
                             </svg>
                             <span class="text-[11px] font-medium">
-                                {{ $task->due_date ? $task->due_date->format('d M Y') : 'No deadline' }}
+                                {{ $task->formatted_due_date ?: 'No deadline' }}
                             </span>
                         </div>
                         <button wire:click="updateStatus({{ $task->id }}, 'doing')" 
@@ -139,7 +139,7 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
                             </svg>
                             <span class="text-[11px] font-medium">
-                                {{ $task->due_date ? $task->due_date->format('d M Y') : 'No deadline' }}
+                                {{ $task->formatted_due_date ?: 'No deadline' }}
                             </span>
                         </div>
                         <div class="flex gap-2">
@@ -264,7 +264,7 @@
                                 <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/>
                             </svg>
                             @if($task->due_date)
-                            <span class="text-[11px] font-bold">{{ $task->due_date->format('M d, Y') }}</span>
+                            <span class="text-[11px] font-bold">{{ $task->formatted_due_date }}</span>
                             @else
                             <span class="text-[11px] font-bold">Overdue</span>
                             @endif

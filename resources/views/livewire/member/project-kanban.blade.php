@@ -38,7 +38,11 @@
                     @forelse($todoTasks as $task)
                     <div class="bg-white rounded-lg border border-gray-200 p-4 hover:shadow-md transition">
                         <div class="flex items-start justify-between mb-2">
-                            <h4 class="font-semibold text-gray-900 text-sm">{{ $task->title }}</h4>
+                            <h4 class="font-semibold text-gray-900 text-sm">
+                                <a href="{{ route('member.tasks.show', $task->id) }}" class="hover:text-teal-600 hover:underline">
+                                    {{ $task->title }}
+                                </a>
+                            </h4>
                             <span class="px-2 py-1 text-xs font-medium rounded-full
                                 {{ $task->priority === 'urgent' ? 'bg-red-100 text-red-700' : '' }}
                                 {{ $task->priority === 'high' ? 'bg-orange-100 text-orange-700' : '' }}
@@ -57,7 +61,7 @@
                             <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
                             </svg>
-                            <span>{{ $task->due_date->format('M d, Y') }}</span>
+                            <span>{{ $task->formatted_due_date }}</span>
                         </div>
                         @endif
                         
@@ -91,7 +95,11 @@
                     @forelse($doingTasks as $task)
                     <div class="bg-white rounded-lg border border-blue-200 p-4 hover:shadow-md transition">
                         <div class="flex items-start justify-between mb-2">
-                            <h4 class="font-semibold text-gray-900 text-sm">{{ $task->title }}</h4>
+                            <h4 class="font-semibold text-gray-900 text-sm">
+                                <a href="{{ route('member.tasks.show', $task->id) }}" class="hover:text-teal-600 hover:underline">
+                                    {{ $task->title }}
+                                </a>
+                            </h4>
                             <span class="px-2 py-1 text-xs font-medium rounded-full
                                 {{ $task->priority === 'urgent' ? 'bg-red-100 text-red-700' : '' }}
                                 {{ $task->priority === 'high' ? 'bg-orange-100 text-orange-700' : '' }}
@@ -110,7 +118,7 @@
                             <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
                             </svg>
-                            <span>{{ $task->due_date->format('M d, Y') }}</span>
+                            <span>{{ $task->formatted_due_date }}</span>
                         </div>
                         @endif
                         
@@ -144,7 +152,11 @@
                     @forelse($doneTasks as $task)
                     <div class="bg-white rounded-lg border border-green-200 p-4 hover:shadow-md transition opacity-75">
                         <div class="flex items-start justify-between mb-2">
-                            <h4 class="font-semibold text-gray-900 text-sm line-through">{{ $task->title }}</h4>
+                            <h4 class="font-semibold text-gray-900 text-sm line-through">
+                                <a href="{{ route('member.tasks.show', $task->id) }}" class="hover:text-teal-600 hover:underline">
+                                    {{ $task->title }}
+                                </a>
+                            </h4>
                             <span class="px-2 py-1 text-xs font-medium rounded-full
                                 {{ $task->priority === 'urgent' ? 'bg-red-100 text-red-700' : '' }}
                                 {{ $task->priority === 'high' ? 'bg-orange-100 text-orange-700' : '' }}
@@ -193,7 +205,11 @@
                     @forelse($overdueTasks as $task)
                     <div class="bg-white rounded-lg border border-red-200 p-4 hover:shadow-md transition">
                         <div class="flex items-start justify-between mb-2">
-                            <h4 class="font-semibold text-gray-900 text-sm">{{ $task->title }}</h4>
+                            <h4 class="font-semibold text-gray-900 text-sm">
+                                <a href="{{ route('member.tasks.show', $task->id) }}" class="hover:text-teal-600 hover:underline">
+                                    {{ $task->title }}
+                                </a>
+                            </h4>
                             <span class="px-2 py-1 text-xs font-medium rounded-full
                                 {{ $task->priority === 'urgent' ? 'bg-red-100 text-red-700' : '' }}
                                 {{ $task->priority === 'high' ? 'bg-orange-100 text-orange-700' : '' }}
@@ -212,7 +228,7 @@
                             <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                             </svg>
-                            <span>{{ $task->due_date->diffForHumans() }}</span>
+                            <span>{{ $task->formatted_due_date }} ({{ $task->due_date->diffForHumans() }})</span>
                         </div>
                         @endif
                         

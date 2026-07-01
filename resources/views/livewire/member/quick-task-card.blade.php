@@ -8,7 +8,9 @@
 
         <div>
             <h3 class="font-bold text-gray-800">
-                {{ $task->title }}
+                <a href="{{ route('member.tasks.show', $task->id) }}" class="hover:text-teal-600 hover:underline">
+                    {{ $task->title }}
+                </a>
             </h3>
 
             <p class="text-sm text-gray-500 uppercase">
