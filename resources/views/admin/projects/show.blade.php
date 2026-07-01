@@ -159,6 +159,66 @@
         @endif
     </div>
 
+    <!-- Milestones Section -->
+    <div class="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
+        <div class="flex items-center justify-between mb-4">
+            <h2 class="text-lg font-bold text-gray-900">Project Milestones</h2>
+            <button onclick="openCreateMilestoneModal()" class="px-3 py-1.5 bg-teal-600 hover:bg-teal-700 text-white font-medium rounded-lg text-xs shadow transition-all">
+                Add Milestone
+            </button>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            @forelse($project->milestones as $milestone)
+            <div class="p-4 bg-gray-50 rounded-xl border border-gray-200">
+                <div class="flex items-center justify-between mb-2">
+                    <h3 class="font-bold text-gray-900 text-sm">{{ $milestone->title }}</h3>
+                    <span class="px-2 py-0.5 rounded text-[10px] uppercase font-bold
+                        {{ $milestone->status === 'completed' ? 'bg-green-100 text-green-700' : 'bg-blue-100 text-blue-700' }}">
+                        {{ $milestone->status }}
+                    </span>
+                </div>
+                <p class="text-xs text-gray-600 mb-3">{{ $milestone->description ?: 'No description provided.' }}</p>
+                <div class="flex items-center justify-between text-xs text-gray-500 mb-2">
+                    <span>Due: {{ $milestone->due_date ? $milestone->due_date->format('M d, Y') : 'No date' }}</span>
+                    <span>Progress: {{ $milestone->progress }}%</span>
+                </div>
+                <div class="w-full bg-gray-200 rounded-full h-1.5">
+                    <div class="bg-teal-600 h-1.5 rounded-full" style="width: {{ $milestone->progress }}%"></div>
+                </div>
+            </div>
+            @empty
+            <div class="col-span-3 text-center py-6 text-gray-400 italic text-sm">
+                No milestones defined for this project.
+            </div>
+            @endforelse
+        </div>
+    </div>
+
+    <!-- Project History & Activity Log -->
+    <div class="bg-white rounded-xl border border-gray-200 p-6 shadow-sm mb-6">
+        <h2 class="text-lg font-bold text-gray-900 mb-4">Project History & Activity Log</h2>
+        <div class="space-y-4 max-h-60 overflow-y-auto pr-2">
+            @forelse($activities as $act)
+            <div class="flex gap-3 text-sm p-3 bg-gray-50 rounded-lg border border-gray-100">
+                <div class="w-8 h-8 rounded-full bg-blue-600 text-white font-bold flex items-center justify-center text-xs flex-shrink-0 shadow-sm">
+                    {{ substr($act->user->name, 0, 1) }}
+                </div>
+                <div class="flex-1 min-w-0">
+                    <div class="flex items-center justify-between">
+                        <h4 class="text-xs font-bold text-gray-900">{{ $act->user->name }}</h4>
+                        <span class="text-[10px] text-gray-400 font-medium">{{ $act->occurred_at->diffForHumans() }}</span>
+                    </div>
+                    <p class="text-xs text-gray-700 font-semibold mt-1">{{ $act->title }}</p>
+                    <p class="text-[11px] text-gray-500 mt-0.5">{{ $act->description }}</p>
+                </div>
+            </div>
+            @empty
+            <p class="text-xs text-gray-400 italic text-center py-4">No activities logged yet.</p>
+            @endforelse
+        </div>
+    </div>
+
     <!-- Task Breakdown Stats -->
     <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
         <div class="bg-white rounded-xl border border-gray-200 p-6">
@@ -198,12 +258,12 @@
                 <div class="flex items-center justify-between mb-4">
                     <h3 class="text-lg font-bold text-gray-900">To Do</h3>
                     <span class="px-2 py-1 bg-gray-200 text-gray-700 text-sm font-medium rounded-full">
-                        {{ $project->tasks->where('status', 'todo')->count() }}
+                        {{ $project->tasks->where('status', 'todo')->filter(fn($t) => !$t->due_date || !$t->due_date->isPast())->count() }}
                     </span>
                 </div>
                 <div class="space-y-3">
-                    @forelse($project->tasks->where('status', 'todo') as $task)
-                    <div class="bg-white rounded-lg p-4 border border-gray-200 hover:shadow-md transition-shadow cursor-pointer">
+                    @forelse($project->tasks->where('status', 'todo')->filter(fn($t) => !$t->due_date || !$t->due_date->isPast()) as $task)
+                    <div onclick="window.location.href='{{ route('admin.tasks.show', $task) }}'" class="bg-white rounded-lg p-4 border border-gray-200 hover:shadow-md transition-shadow cursor-pointer">
                         <div class="flex items-start justify-between mb-2">
                             <h4 class="font-semibold text-gray-900">{{ $task->title }}</h4>
                             <span class="px-2 py-1 text-xs font-medium rounded-full
@@ -229,7 +289,7 @@
                             <span class="text-gray-400">Unassigned</span>
                             @endif
                             @if($task->due_date)
-                            <span class="text-gray-500">{{ $task->due_date->format('M d') }}</span>
+                            <span class="text-gray-500">{{ $task->formatted_due_date_short }}</span>
                             @endif
                         </div>
                     </div>
@@ -246,12 +306,12 @@
                 <div class="flex items-center justify-between mb-4">
                     <h3 class="text-lg font-bold text-gray-900">Doing</h3>
                     <span class="px-2 py-1 bg-blue-200 text-blue-700 text-sm font-medium rounded-full">
-                        {{ $project->tasks->where('status', 'doing')->count() }}
+                        {{ $project->tasks->where('status', 'doing')->filter(fn($t) => !$t->due_date || !$t->due_date->isPast())->count() }}
                     </span>
                 </div>
                 <div class="space-y-3">
-                    @forelse($project->tasks->where('status', 'doing') as $task)
-                    <div class="bg-white rounded-lg p-4 border border-blue-200 hover:shadow-md transition-shadow cursor-pointer">
+                    @forelse($project->tasks->where('status', 'doing')->filter(fn($t) => !$t->due_date || !$t->due_date->isPast()) as $task)
+                    <div onclick="window.location.href='{{ route('admin.tasks.show', $task) }}'" class="bg-white rounded-lg p-4 border border-blue-200 hover:shadow-md transition-shadow cursor-pointer">
                         <div class="flex items-start justify-between mb-2">
                             <h4 class="font-semibold text-gray-900">{{ $task->title }}</h4>
                             <span class="px-2 py-1 text-xs font-medium rounded-full
@@ -277,7 +337,7 @@
                             <span class="text-gray-400">Unassigned</span>
                             @endif
                             @if($task->due_date)
-                            <span class="text-gray-500">{{ $task->due_date->format('M d') }}</span>
+                            <span class="text-gray-500">{{ $task->formatted_due_date_short }}</span>
                             @endif
                         </div>
                     </div>
@@ -299,7 +359,7 @@
                 </div>
                 <div class="space-y-3">
                     @forelse($project->tasks->where('status', 'done') as $task)
-                    <div class="bg-white rounded-lg p-4 border border-green-200 hover:shadow-md transition-shadow cursor-pointer">
+                    <div onclick="window.location.href='{{ route('admin.tasks.show', $task) }}'" class="bg-white rounded-lg p-4 border border-green-200 hover:shadow-md transition-shadow cursor-pointer">
                         <div class="flex items-start justify-between mb-2">
                             <h4 class="font-semibold text-gray-900 line-through">{{ $task->title }}</h4>
                             <span class="px-2 py-1 text-xs font-medium rounded-full
@@ -325,7 +385,7 @@
                             <span class="text-gray-400">Unassigned</span>
                             @endif
                             @if($task->due_date)
-                            <span class="text-gray-500">{{ $task->due_date->format('M d') }}</span>
+                            <span class="text-gray-500">{{ $task->formatted_due_date_short }}</span>
                             @endif
                         </div>
                     </div>
@@ -353,7 +413,7 @@
                 </div>
                 <div class="space-y-3">
                     @forelse($overdueTasks as $task)
-                    <div class="bg-white rounded-lg p-4 border-2 border-red-300 hover:shadow-md transition-shadow cursor-pointer">
+                    <div onclick="window.location.href='{{ route('admin.tasks.show', $task) }}'" class="bg-white rounded-lg p-4 border-2 border-red-300 hover:shadow-md transition-shadow cursor-pointer">
                         <div class="flex items-start justify-between mb-2">
                             <h4 class="font-semibold text-gray-900">{{ $task->title }}</h4>
                             <span class="px-2 py-1 text-xs font-medium rounded-full
@@ -383,7 +443,7 @@
                                 <svg class="w-3 h-3 text-red-600" fill="currentColor" viewBox="0 0 20 20">
                                     <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/>
                                 </svg>
-                                <span class="text-red-600 font-medium">{{ $task->due_date->format('M d') }}</span>
+                                <span class="text-red-600 font-medium">{{ $task->formatted_due_date_short }}</span>
                             </div>
                             @endif
                         </div>
@@ -419,13 +479,13 @@
             <div>
                 <label for="title" class="block text-sm font-medium text-gray-700 mb-2">Task Title</label>
                 <input type="text" name="title" id="title" required
-                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
             </div>
             
             <div>
                 <label for="description" class="block text-sm font-medium text-gray-700 mb-2">Description</label>
                 <textarea name="description" id="description" rows="3"
-                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"></textarea>
             </div>
             
             <input type="hidden" name="status" value="todo">
@@ -434,7 +494,7 @@
                 <div>
                     <label for="priority" class="block text-sm font-medium text-gray-700 mb-2">Priority</label>
                     <select name="priority" id="priority" required
-                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
                         <option value="low">Low</option>
                         <option value="medium">Medium</option>
                         <option value="high">High</option>
@@ -445,7 +505,7 @@
                 <div>
                     <label for="user_id" class="block text-sm font-medium text-gray-700 mb-2">Assign To</label>
                     <select name="user_id" id="user_id"
-                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
                         <option value="">Unassigned</option>
                         @foreach($project->members as $user)
                             <option value="{{ $user->id }}">{{ $user->name }}</option>
@@ -453,16 +513,63 @@
                     </select>
                 </div>
             </div>
+
+            <div>
+                <label for="milestone_id" class="block text-sm font-medium text-gray-700 mb-2">Milestone</label>
+                <select name="milestone_id" id="milestone_id"
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+                    <option value="">None</option>
+                    @foreach($project->milestones as $m)
+                        <option value="{{ $m->id }}">{{ $m->title }}</option>
+                    @endforeach
+                </select>
+            </div>
             
             <div>
                 <label for="due_date" class="block text-sm font-medium text-gray-700 mb-2">Due Date</label>
-                <input type="date" name="due_date" id="due_date"
-                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <input type="datetime-local" name="due_date" id="due_date"
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
             </div>
             
             <div class="flex items-center justify-end gap-3 pt-4 border-t border-gray-200">
                 <button type="button" onclick="closeCreateTaskModal()" class="btn-secondary">Cancel</button>
                 <button type="submit" class="btn-primary">Create Task</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Create Milestone Modal -->
+<div id="createMilestoneModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+    <div class="bg-white rounded-xl p-6 max-w-md w-full mx-4">
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="text-xl font-bold text-gray-900">Create New Milestone</h3>
+            <button onclick="closeCreateMilestoneModal()" class="text-gray-400 hover:text-gray-600">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+            </button>
+        </div>
+        <form method="POST" action="{{ route('admin.projects.milestones', $project) }}" class="space-y-4">
+            @csrf
+            <div>
+                <label for="m_title" class="block text-sm font-medium text-gray-700 mb-2">Milestone Title</label>
+                <input type="text" name="title" id="m_title" required
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+            </div>
+            <div>
+                <label for="m_desc" class="block text-sm font-medium text-gray-700 mb-2">Description</label>
+                <textarea name="description" id="m_desc" rows="3"
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"></textarea>
+            </div>
+            <div>
+                <label for="m_due" class="block text-sm font-medium text-gray-700 mb-2">Due Date</label>
+                <input type="date" name="due_date" id="m_due"
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+            </div>
+            <div class="flex items-center justify-end gap-3 pt-4 border-t border-gray-200">
+                <button type="button" onclick="closeCreateMilestoneModal()" class="btn-secondary">Cancel</button>
+                <button type="submit" class="btn-primary">Create Milestone</button>
             </div>
         </form>
     </div>
@@ -477,17 +584,31 @@ function closeCreateTaskModal() {
     document.getElementById('createTaskModal').classList.add('hidden');
 }
 
-// Close modal on escape key
+function openCreateMilestoneModal() {
+    document.getElementById('createMilestoneModal').classList.remove('hidden');
+}
+
+function closeCreateMilestoneModal() {
+    document.getElementById('createMilestoneModal').classList.add('hidden');
+}
+
+// Close modals on escape key
 document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape') {
         closeCreateTaskModal();
+        closeCreateMilestoneModal();
     }
 });
 
-// Close modal when clicking outside
+// Close modals when clicking outside
 document.getElementById('createTaskModal')?.addEventListener('click', function(e) {
     if (e.target === this) {
         closeCreateTaskModal();
+    }
+});
+document.getElementById('createMilestoneModal')?.addEventListener('click', function(e) {
+    if (e.target === this) {
+        closeCreateMilestoneModal();
     }
 });
 </script>

@@ -3,6 +3,7 @@
 @section('title', 'Dashboard')
 
 @section('content')
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <div class="space-y-6">
     <!-- Stats Cards -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -75,6 +76,25 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
                     </svg>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dashboard Analytics Charts -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- Status Breakdown Chart -->
+        <div class="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
+            <h2 class="text-lg font-bold text-gray-900 mb-4">Task Status Breakdown</h2>
+            <div class="relative h-64 flex justify-center items-center">
+                <canvas id="statusChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Priority Breakdown Chart -->
+        <div class="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
+            <h2 class="text-lg font-bold text-gray-900 mb-4">Task Priority Breakdown</h2>
+            <div class="relative h-64 flex justify-center items-center">
+                <canvas id="priorityChart"></canvas>
             </div>
         </div>
     </div>
@@ -309,6 +329,90 @@ document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape') {
         closeProjectModal();
     }
+});
+
+// Initialize Chart.js Analytics
+document.addEventListener("DOMContentLoaded", function() {
+    // Status Chart
+    const statusData = @json(array_values($statusCounts));
+    const statusLabels = @json(array_keys($statusCounts));
+    const statusColorsMap = {
+        'todo': '#3B82F6',       // Blue
+        'doing': '#F59E0B',      // Amber
+        'in_review': '#8B5CF6',  // Purple
+        'done': '#10B981',       // Emerald
+        'overdue': '#EF4444'     // Red
+    };
+    const statusColors = statusLabels.map(label => statusColorsMap[label] || '#9CA3AF');
+
+    const statusCtx = document.getElementById('statusChart').getContext('2d');
+    new Chart(statusCtx, {
+        type: 'doughnut',
+        data: {
+            labels: statusLabels.map(label => label.charAt(0).toUpperCase() + label.slice(1).replace('_', ' ')),
+            datasets: [{
+                data: statusData,
+                backgroundColor: statusColors,
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        boxWidth: 12,
+                        padding: 15
+                    }
+                }
+            },
+            cutout: '65%'
+        }
+    });
+
+    // Priority Chart
+    const priorityData = @json(array_values($priorityCounts));
+    const priorityLabels = @json(array_keys($priorityCounts));
+    const priorityColorsMap = {
+        'low': '#10B981',     // Green
+        'medium': '#F59E0B',  // Amber
+        'high': '#F97316',    // Orange
+        'urgent': '#EF4444'   // Red
+    };
+    const priorityColors = priorityLabels.map(label => priorityColorsMap[label] || '#9CA3AF');
+
+    const priorityCtx = document.getElementById('priorityChart').getContext('2d');
+    new Chart(priorityCtx, {
+        type: 'bar',
+        data: {
+            labels: priorityLabels.map(label => label.charAt(0).toUpperCase() + label.slice(1)),
+            datasets: [{
+                label: 'Tasks Count',
+                data: priorityData,
+                backgroundColor: priorityColors,
+                borderRadius: 4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        precision: 0
+                    }
+                }
+            }
+        }
+    });
 });
 </script>
 
