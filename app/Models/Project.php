@@ -86,6 +86,14 @@ class Project extends Model
     }
 
     /**
+     * Milestones for this project.
+     */
+    public function milestones(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Milestone::class)->orderBy('due_date', 'asc');
+    }
+
+    /**
      * Get task breakdown for display.
      */
     public function getTaskBreakdown(): array
