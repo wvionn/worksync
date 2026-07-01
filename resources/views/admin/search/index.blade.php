@@ -15,22 +15,9 @@
         </p>
     </div>
 
-    <form action="{{ route('admin.search.index') }}" method="GET" class="bg-white rounded-xl border border-gray-200 p-4 shadow-sm">
-        <div class="flex flex-col gap-3 sm:flex-row">
-            <input
-                type="search"
-                name="q"
-                value="{{ $query }}"
-                placeholder="Type a project, task, user, or email..."
-                class="flex-1 rounded-lg border border-gray-300 px-4 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-            <button type="submit" class="btn-primary">Search</button>
-        </div>
-    </form>
-
     @if($query === '')
         <div class="rounded-xl border border-blue-100 bg-blue-50 p-4 text-sm text-blue-700">
-            Enter a keyword to start searching.
+            Enter a keyword in the top search bar to start searching.
         </div>
     @else
         <div class="grid grid-cols-1 gap-6 xl:grid-cols-3">

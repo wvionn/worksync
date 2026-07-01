@@ -127,7 +127,7 @@
                             <input type="search" name="q" value="{{ request('q') }}" placeholder="Search projects, tasks, or users..."
                                 class="w-full pl-10 pr-24 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                             <button type="submit"
-                                class="absolute right-1.5 rounded-md bg-blue-600 px-3 py-1.5 text-sm font-semibold text-white hover:bg-blue-700">
+                                class="absolute right-1.5 top-1/2 -translate-y-1/2 rounded-md bg-blue-600 px-3 py-1.5 text-sm font-semibold text-white hover:bg-blue-700">
                                 Search
                             </button>
                         </div>
