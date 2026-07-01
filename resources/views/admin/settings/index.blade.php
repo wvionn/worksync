@@ -15,7 +15,6 @@
                 <a href="#profile" class="rounded-lg bg-blue-50 px-4 py-2.5 text-sm font-semibold text-blue-700">Profile</a>
                 <a href="#security" class="rounded-lg px-4 py-2.5 text-sm font-semibold text-gray-700 hover:bg-gray-50">Security</a>
                 <a href="#notifications" class="rounded-lg px-4 py-2.5 text-sm font-semibold text-gray-700 hover:bg-gray-50">Notifications</a>
-                <a href="#system" class="rounded-lg px-4 py-2.5 text-sm font-semibold text-gray-700 hover:bg-gray-50">System</a>
             </nav>
         </aside>
 
@@ -142,23 +141,6 @@
                 </div>
             </section>
 
-            <section id="system" class="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
-                <h2 class="text-xl font-bold text-gray-900">System</h2>
-                <div class="mt-5 grid grid-cols-1 gap-4 md:grid-cols-3">
-                    <div class="rounded-lg bg-gray-50 p-4">
-                        <p class="text-xs font-semibold uppercase tracking-wide text-gray-500">Timezone</p>
-                        <p class="mt-1 text-sm font-semibold text-gray-900">{{ config('app.timezone') }}</p>
-                    </div>
-                    <div class="rounded-lg bg-gray-50 p-4">
-                        <p class="text-xs font-semibold uppercase tracking-wide text-gray-500">App Name</p>
-                        <p class="mt-1 text-sm font-semibold text-gray-900">{{ config('app.name') }}</p>
-                    </div>
-                    <div class="rounded-lg bg-gray-50 p-4">
-                        <p class="text-xs font-semibold uppercase tracking-wide text-gray-500">Environment</p>
-                        <p class="mt-1 text-sm font-semibold text-gray-900">{{ app()->environment() }}</p>
-                    </div>
-                </div>
-            </section>
         </div>
     </div>
 </div>
