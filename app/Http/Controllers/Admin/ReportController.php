@@ -46,7 +46,7 @@ class ReportController extends Controller
             ->where(function ($query): void {
                 $query
                     ->where('status', 'overdue')
-                    ->orWhereDate('due_date', '<', now()->toDateString());
+                    ->orWhere('due_date', '<', now());
             })
             ->orderBy('due_date')
             ->take(8)

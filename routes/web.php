@@ -7,10 +7,12 @@ use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\NotificationController;
 use App\Http\Controllers\Admin\SettingController;
+use App\Http\Controllers\Admin\TaskActionController;
 use App\Http\Controllers\Member\DashboardController as MemberDashboardController;
 use App\Http\Controllers\Member\TaskController as MemberTaskController;
 use App\Http\Controllers\Member\ProjectController as MemberProjectController;
 use App\Http\Controllers\Member\SettingController as MemberSettingController;
+use App\Http\Controllers\Member\NotificationController as MemberNotificationController;
 use Illuminate\Support\Facades\Route;
 
 
@@ -33,6 +35,21 @@ Route::middleware(['auth', 'role:member'])->prefix('member')->name('member.')->g
     Route::view('/profile', 'member.profile.index')->name('profile');
     Route::get('/settings', [MemberSettingController::class, 'index'])->name('settings');
     Route::put('/settings', [MemberSettingController::class, 'update'])->name('settings.update');
+
+    // Notifications Routes
+    Route::get('/notifications', [MemberNotificationController::class, 'index'])->name('notifications.index');
+    Route::patch('/notifications/{activity}/read', [MemberNotificationController::class, 'markRead'])->name('notifications.markRead');
+    Route::post('/notifications/mark-all-read', [MemberNotificationController::class, 'markAllRead'])->name('notifications.markAllRead');
+
+    // Task Actions
+    Route::post('/tasks/{task}/comments', [TaskActionController::class, 'postComment'])->name('tasks.comments');
+    Route::delete('/comments/{comment}', [TaskActionController::class, 'deleteComment'])->name('comments.destroy');
+    Route::post('/tasks/{task}/subtasks', [TaskActionController::class, 'postSubtask'])->name('tasks.subtasks');
+    Route::patch('/subtasks/{subtask}/toggle', [TaskActionController::class, 'toggleSubtask'])->name('subtasks.toggle');
+    Route::delete('/subtasks/{subtask}', [TaskActionController::class, 'deleteSubtask'])->name('subtasks.destroy');
+    Route::post('/tasks/{task}/attachments', [TaskActionController::class, 'postAttachment'])->name('tasks.attachments');
+    Route::delete('/attachments/{attachment}', [TaskActionController::class, 'deleteAttachment'])->name('attachments.destroy');
+    Route::post('/tasks/{task}/toggle-blocker', [TaskActionController::class, 'toggleBlocker'])->name('tasks.toggle-blocker');
 });
 
 // Admin Routes
@@ -40,6 +57,7 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::resource('projects', ProjectController::class);
     Route::patch('/tasks/{task}/complete', [TaskController::class, 'complete'])->name('tasks.complete');
+    Route::patch('/tasks/{task}/status', [TaskController::class, 'updateStatus'])->name('tasks.updateStatus');
     Route::resource('tasks', TaskController::class);
     Route::resource('users', UserController::class);
     Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
@@ -55,6 +73,19 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::put('/settings', [SettingController::class, 'update'])->name('settings.update');
 
     Route::view('/chat', 'admin.chat.index')->name('chat.index');
+
+    // Task Actions
+    Route::post('/tasks/{task}/comments', [TaskActionController::class, 'postComment'])->name('tasks.comments');
+    Route::delete('/comments/{comment}', [TaskActionController::class, 'deleteComment'])->name('comments.destroy');
+    Route::post('/tasks/{task}/subtasks', [TaskActionController::class, 'postSubtask'])->name('tasks.subtasks');
+    Route::patch('/subtasks/{subtask}/toggle', [TaskActionController::class, 'toggleSubtask'])->name('subtasks.toggle');
+    Route::delete('/subtasks/{subtask}', [TaskActionController::class, 'deleteSubtask'])->name('subtasks.destroy');
+    Route::post('/tasks/{task}/attachments', [TaskActionController::class, 'postAttachment'])->name('tasks.attachments');
+    Route::delete('/attachments/{attachment}', [TaskActionController::class, 'deleteAttachment'])->name('attachments.destroy');
+    Route::post('/tasks/{task}/toggle-blocker', [TaskActionController::class, 'toggleBlocker'])->name('tasks.toggle-blocker');
+    Route::post('/tasks/{task}/approve', [TaskActionController::class, 'approveReview'])->name('tasks.approve');
+    Route::post('/tasks/{task}/reject', [TaskActionController::class, 'rejectReview'])->name('tasks.reject');
+    Route::post('/projects/{project}/milestones', [TaskActionController::class, 'createMilestone'])->name('projects.milestones');
 });
 
 // User dashboard - redirect based on role

@@ -65,6 +65,19 @@ class ProjectController extends Controller
             'recently_added' => $recentlyAddedTasks,
         ];
 
-        return view('member.projects.show', compact('project', 'taskBreakdown'));
+        $activities = \App\Models\Activity::where(function($query) use ($project) {
+            $query->whereHas('task', function($q) use ($project) {
+                $q->where('project_id', $project->id);
+            })->orWhere(function($q) use ($project) {
+                $q->where('category', 'project')
+                  ->where('description', 'like', "%{$project->name}%");
+            });
+        })
+        ->orderBy('occurred_at', 'desc')
+        ->orderBy('created_at', 'desc')
+        ->take(10)
+        ->get();
+
+        return view('member.projects.show', compact('project', 'taskBreakdown', 'activities'));
     }
 }

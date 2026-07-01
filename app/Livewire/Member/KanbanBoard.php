@@ -91,6 +91,17 @@ class KanbanBoard extends Component
                 fn ($query) => $query->whereRaw('1 = 0')
             )
             ->where('status', 'todo')
+            ->where(function ($query) {
+                $query->whereNull('due_date')
+                    ->orWhereDate('due_date', '>', now()->toDateString())
+                    ->orWhere(function ($q) {
+                        $q->whereDate('due_date', '=', now()->toDateString())
+                            ->where(function ($sub) {
+                                $sub->whereTime('due_date', '=', '00:00:00')
+                                    ->orWhere('due_date', '>=', now());
+                            });
+                    });
+            })
             ->orderBy('priority', 'desc')
             ->orderBy('due_date', 'asc')
             ->get();
@@ -103,6 +114,17 @@ class KanbanBoard extends Component
                 fn ($query) => $query->whereRaw('1 = 0')
             )
             ->where('status', 'doing')
+            ->where(function ($query) {
+                $query->whereNull('due_date')
+                    ->orWhereDate('due_date', '>', now()->toDateString())
+                    ->orWhere(function ($q) {
+                        $q->whereDate('due_date', '=', now()->toDateString())
+                            ->where(function ($sub) {
+                                $sub->whereTime('due_date', '=', '00:00:00')
+                                    ->orWhere('due_date', '>=', now());
+                            });
+                    });
+            })
             ->orderBy('priority', 'desc')
             ->orderBy('due_date', 'asc')
             ->get();
@@ -129,7 +151,13 @@ class KanbanBoard extends Component
                 $query->where('status', 'overdue')
                     ->orWhere(function ($q) {
                         $q->where('status', '!=', 'done')
-                            ->whereDate('due_date', '<', now()->toDateString());
+                            ->where(function ($inner) {
+                                $inner->whereDate('due_date', '<', now()->toDateString())
+                                    ->orWhere(function ($sub) {
+                                        $sub->where('due_date', '<', now())
+                                            ->whereTime('due_date', '!=', '00:00:00');
+                                    });
+                            });
                     });
             })
             ->orderBy('due_date', 'asc')

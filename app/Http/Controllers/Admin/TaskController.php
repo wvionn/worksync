@@ -22,6 +22,17 @@ class TaskController extends Controller
         // For Kanban view
         $todoTasks = Task::with('user', 'project')
             ->where('status', 'todo')
+            ->where(function ($query) {
+                $query->whereNull('due_date')
+                    ->orWhereDate('due_date', '>', now()->toDateString())
+                    ->orWhere(function ($q) {
+                        $q->whereDate('due_date', '=', now()->toDateString())
+                            ->where(function ($sub) {
+                                $sub->whereTime('due_date', '=', '00:00:00')
+                                    ->orWhere('due_date', '>=', now());
+                            });
+                    });
+            })
             ->when($search !== '', function ($query) use ($search): void {
                 $query->where('title', 'like', "%{$search}%");
             })
@@ -31,6 +42,17 @@ class TaskController extends Controller
 
         $doingTasks = Task::with('user', 'project')
             ->where('status', 'doing')
+            ->where(function ($query) {
+                $query->whereNull('due_date')
+                    ->orWhereDate('due_date', '>', now()->toDateString())
+                    ->orWhere(function ($q) {
+                        $q->whereDate('due_date', '=', now()->toDateString())
+                            ->where(function ($sub) {
+                                $sub->whereTime('due_date', '=', '00:00:00')
+                                    ->orWhere('due_date', '>=', now());
+                            });
+                    });
+            })
             ->when($search !== '', function ($query) use ($search): void {
                 $query->where('title', 'like', "%{$search}%");
             })
@@ -51,7 +73,13 @@ class TaskController extends Controller
                 $query->where('status', 'overdue')
                     ->orWhere(function ($q): void {
                         $q->where('status', '!=', 'done')
-                            ->whereDate('due_date', '<', now()->toDateString());
+                            ->where(function ($inner) {
+                                $inner->whereDate('due_date', '<', now()->toDateString())
+                                    ->orWhere(function ($sub) {
+                                        $sub->where('due_date', '<', now())
+                                            ->whereTime('due_date', '!=', '00:00:00');
+                                    });
+                            });
                     });
             })
             ->when($search !== '', function ($query) use ($search): void {
@@ -66,7 +94,7 @@ class TaskController extends Controller
             'doingTasks' => $doingTasks,
             'doneTasks' => $doneTasks,
             'overdueTasks' => $overdueTasks,
-            'projects' => Project::query()->orderBy('name')->get(['id', 'name']),
+            'projects' => Project::with('members:id,name')->orderBy('name')->get(),
             'users' => User::query()->orderBy('name')->get(['id', 'name']),
             'search' => $search,
             'statusFilter' => $statusFilter,
@@ -78,10 +106,13 @@ class TaskController extends Controller
     public function create(): View
     {
         return view('admin.tasks.create', [
-            'projects' => Project::query()->orderBy('name')->get(['id', 'name']),
+            'projects' => Project::with('members:id,name')->orderBy('name')->get(),
             'users' => User::query()->orderBy('name')->get(['id', 'name']),
-            'statusOptions' => ['todo', 'doing', 'done', 'overdue'],
+            'statusOptions' => ['todo', 'doing', 'done', 'overdue', 'in_review'],
             'priorityOptions' => ['low', 'medium', 'high', 'urgent'],
+            'labels' => \App\Models\Label::all(),
+            'milestones' => \App\Models\Milestone::all(),
+            'tasks' => Task::with('project')->get(),
         ]);
     }
 
@@ -91,15 +122,47 @@ class TaskController extends Controller
             'project_id' => ['nullable', 'exists:projects,id'],
             'title' => ['required', 'string', 'max:160'],
             'description' => ['nullable', 'string'],
-            'status' => ['required', Rule::in(['todo', 'doing', 'done', 'overdue'])],
+            'status' => ['required', Rule::in(['todo', 'doing', 'done', 'overdue', 'in_review'])],
             'priority' => ['required', Rule::in(['low', 'medium', 'high', 'urgent'])],
             'user_id' => ['nullable', 'exists:users,id'],
             'due_date' => ['nullable', 'date'],
+            'milestone_id' => ['nullable', 'exists:milestones,id'],
+            'is_blocked' => ['nullable', 'boolean'],
+            'blocker_description' => ['nullable', 'string'],
         ]);
+
+        $validated['is_blocked'] = $request->has('is_blocked');
+        if (!$validated['is_blocked']) {
+            $validated['blocker_description'] = null;
+        }
+
+        // Dependency check
+        if (in_array($validated['status'], ['doing', 'done'])) {
+            $dependencyIds = $request->input('dependency_ids', []);
+            $incompleteDependencies = Task::whereIn('id', $dependencyIds)
+                ->where('status', '!=', 'done')
+                ->exists();
+            if ($incompleteDependencies) {
+                return redirect()
+                    ->back()
+                    ->withInput()
+                    ->with('error_message', 'Tidak dapat mengubah status task karena masih ada dependency task yang belum selesai.');
+            }
+        }
 
         $validated = $this->normalizeTaskState($validated);
 
         $task = Task::create($validated);
+
+        // Sync labels
+        if ($request->has('label_ids')) {
+            $task->labels()->sync($request->input('label_ids'));
+        }
+
+        // Sync dependencies
+        if ($request->has('dependency_ids')) {
+            $task->dependencies()->sync($request->input('dependency_ids'));
+        }
 
         Activity::create([
             'user_id' => $request->user()->id,
@@ -107,7 +170,7 @@ class TaskController extends Controller
             'description' => "Task {$task->title} was created.",
             'category' => 'task',
             'is_read' => false,
-            'link' => route('admin.tasks.index'),
+            'link' => route('admin.tasks.show', $task),
             'occurred_at' => now(),
         ]);
 
@@ -125,7 +188,20 @@ class TaskController extends Controller
 
     public function show(Task $task): View
     {
-        $task->load(['project', 'user']);
+        $task->load([
+            'project', 
+            'user', 
+            'comments.user', 
+            'subtasks', 
+            'attachments.user', 
+            'labels', 
+            'dependencies.project', 
+            'dependents.project', 
+            'milestone',
+            'activities' => function($q) {
+                $q->orderBy('occurred_at', 'desc')->orderBy('created_at', 'desc');
+            }
+        ]);
         
         return view('admin.tasks.show', [
             'task' => $task,
@@ -136,10 +212,13 @@ class TaskController extends Controller
     {
         return view('admin.tasks.edit', [
             'task' => $task,
-            'projects' => Project::query()->orderBy('name')->get(['id', 'name']),
+            'projects' => Project::with('members:id,name')->orderBy('name')->get(),
             'users' => User::query()->orderBy('name')->get(['id', 'name']),
-            'statusOptions' => ['todo', 'doing', 'done', 'overdue'],
+            'statusOptions' => ['todo', 'doing', 'done', 'overdue', 'in_review'],
             'priorityOptions' => ['low', 'medium', 'high', 'urgent'],
+            'labels' => \App\Models\Label::all(),
+            'milestones' => \App\Models\Milestone::all(),
+            'tasks' => Task::with('project')->get(),
         ]);
     }
 
@@ -149,15 +228,54 @@ class TaskController extends Controller
             'project_id' => ['nullable', 'exists:projects,id'],
             'title' => ['required', 'string', 'max:160'],
             'description' => ['nullable', 'string'],
-            'status' => ['required', Rule::in(['todo', 'doing', 'done', 'overdue'])],
+            'status' => ['required', Rule::in(['todo', 'doing', 'done', 'overdue', 'in_review'])],
             'priority' => ['required', Rule::in(['low', 'medium', 'high', 'urgent'])],
             'user_id' => ['nullable', 'exists:users,id'],
             'due_date' => ['nullable', 'date'],
+            'milestone_id' => ['nullable', 'exists:milestones,id'],
+            'is_blocked' => ['nullable', 'boolean'],
+            'blocker_description' => ['nullable', 'string'],
         ]);
+
+        $validated['is_blocked'] = $request->has('is_blocked');
+        if (!$validated['is_blocked']) {
+            $validated['blocker_description'] = null;
+        }
+
+        // Dependency check
+        if (in_array($validated['status'], ['doing', 'done'])) {
+            $dependencyIds = $request->has('dependency_ids') 
+                ? $request->input('dependency_ids', []) 
+                : $task->dependencies()->pluck('depends_on_task_id')->toArray();
+
+            $incompleteDependencies = Task::whereIn('id', $dependencyIds)
+                ->where('status', '!=', 'done')
+                ->exists();
+            if ($incompleteDependencies) {
+                return redirect()
+                    ->back()
+                    ->withInput()
+                    ->with('error_message', 'Tidak dapat mengubah status task karena masih ada dependency task yang belum selesai.');
+            }
+        }
 
         $validated = $this->normalizeTaskState($validated);
 
         $task->update($validated);
+
+        // Sync labels
+        if ($request->has('label_ids')) {
+            $task->labels()->sync($request->input('label_ids'));
+        } else {
+            $task->labels()->detach();
+        }
+
+        // Sync dependencies
+        if ($request->has('dependency_ids')) {
+            $task->dependencies()->sync($request->input('dependency_ids'));
+        } else {
+            $task->dependencies()->detach();
+        }
 
         Activity::create([
             'user_id' => $request->user()->id,
@@ -165,12 +283,12 @@ class TaskController extends Controller
             'description' => "Task {$task->title} was updated.",
             'category' => 'task',
             'is_read' => false,
-            'link' => route('admin.tasks.index'),
+            'link' => route('admin.tasks.show', $task),
             'occurred_at' => now(),
         ]);
 
         return redirect()
-            ->route('admin.tasks.index')
+            ->route('admin.tasks.show', $task)
             ->with('success_message', 'Task berhasil diperbarui.');
     }
 
@@ -216,6 +334,53 @@ class TaskController extends Controller
             ->with('success_message', 'Task ditandai selesai.');
     }
 
+    public function updateStatus(Request $request, Task $task): RedirectResponse
+    {
+        $validated = $request->validate([
+            'status' => ['required', Rule::in(['todo', 'doing', 'done', 'overdue', 'in_review'])],
+        ]);
+
+        // Dependency check
+        if (in_array($validated['status'], ['doing', 'done'])) {
+            $incompleteDependencies = $task->dependencies()
+                ->where('status', '!=', 'done')
+                ->exists();
+            if ($incompleteDependencies) {
+                return redirect()
+                    ->back()
+                    ->with('error_message', 'Tidak dapat mengubah status task karena masih ada dependency task yang belum selesai.');
+            }
+        }
+
+        $oldStatus = $task->status;
+        
+        $updateData = [
+            'status' => $validated['status'],
+        ];
+        
+        if ($validated['status'] === 'done') {
+            $updateData['completed_at'] = now();
+        } else {
+            $updateData['completed_at'] = null;
+        }
+        
+        $task->update($updateData);
+
+        Activity::create([
+            'user_id' => $request->user()->id,
+            'title' => 'Task status updated',
+            'description' => "Task '{$task->title}' status changed from {$oldStatus} to {$validated['status']}.",
+            'category' => 'task',
+            'is_read' => false,
+            'link' => route('admin.tasks.show', $task),
+            'occurred_at' => now(),
+        ]);
+
+        return redirect()
+            ->back()
+            ->with('success_message', 'Status task berhasil diperbarui.');
+    }
+
     /**
      * Ensure task state is consistent with due date and completion timestamp.
      *
@@ -233,8 +398,14 @@ class TaskController extends Controller
         $taskData['completed_at'] = null;
 
         $dueDate = $taskData['due_date'] ?? null;
-        if ($dueDate && $dueDate < now()->toDateString()) {
-            $taskData['status'] = 'overdue';
+        if ($dueDate) {
+            $date = \Illuminate\Support\Carbon::parse($dueDate);
+            if ($date->hour === 0 && $date->minute === 0 && $date->second === 0) {
+                $date->endOfDay();
+            }
+            if ($date->isPast()) {
+                $taskData['status'] = 'overdue';
+            }
         }
 
         return $taskData;

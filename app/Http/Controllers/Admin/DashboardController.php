@@ -83,6 +83,31 @@ class DashboardController extends Controller
             ? (int) round(($newTasksThisWeek / $previousTasks) * 100)
             : ($newTasksThisWeek > 0 ? 100 : 0);
 
+        $statusCounts = Task::selectRaw('status, count(*) as count')
+            ->groupBy('status')
+            ->pluck('count', 'status')
+            ->toArray();
+
+        $priorityCounts = Task::selectRaw('priority, count(*) as count')
+            ->groupBy('priority')
+            ->pluck('count', 'priority')
+            ->toArray();
+
+        $statusCounts = array_merge([
+            'todo' => 0,
+            'doing' => 0,
+            'in_review' => 0,
+            'done' => 0,
+            'overdue' => 0,
+        ], $statusCounts);
+
+        $priorityCounts = array_merge([
+            'low' => 0,
+            'medium' => 0,
+            'high' => 0,
+            'urgent' => 0,
+        ], $priorityCounts);
+
         $recentActivities = Activity::query()
             ->orderByDesc('occurred_at')
             ->orderByDesc('created_at')
@@ -102,6 +127,8 @@ class DashboardController extends Controller
             'projectChangeRate' => $projectChangeRate,
             'taskChangeRate' => $taskChangeRate,
             'recentActivities' => $recentActivities,
+            'statusCounts' => $statusCounts,
+            'priorityCounts' => $priorityCounts,
         ]);
     }
 }

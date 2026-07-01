@@ -99,8 +99,12 @@ class ProjectKanban extends Component
             ->get();
         
         // Separate by status
-        $todoTasks = $myTasks->where('status', 'todo')->sortBy('due_date');
-        $doingTasks = $myTasks->where('status', 'doing')->sortBy('due_date');
+        $todoTasks = $myTasks->where('status', 'todo')
+            ->filter(fn($task) => !$task->due_date || !$task->due_date->isPast())
+            ->sortBy('due_date');
+        $doingTasks = $myTasks->where('status', 'doing')
+            ->filter(fn($task) => !$task->due_date || !$task->due_date->isPast())
+            ->sortBy('due_date');
         $doneTasks = $myTasks->where('status', 'done')->sortByDesc('updated_at');
         
         // Overdue tasks (not done + past due date)

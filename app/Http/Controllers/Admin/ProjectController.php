@@ -106,9 +106,23 @@ class ProjectController extends Controller
             $query->with('user')->orderBy('created_at', 'desc');
         }]);
         
+        $activities = \App\Models\Activity::where(function($query) use ($project) {
+            $query->whereHas('task', function($q) use ($project) {
+                $q->where('project_id', $project->id);
+            })->orWhere(function($q) use ($project) {
+                $q->where('category', 'project')
+                  ->where('description', 'like', "%{$project->name}%");
+            });
+        })
+        ->orderBy('occurred_at', 'desc')
+        ->orderBy('created_at', 'desc')
+        ->take(10)
+        ->get();
+        
         return view('admin.projects.show', [
             'project' => $project,
             'taskBreakdown' => $project->getTaskBreakdown(),
+            'activities' => $activities,
         ]);
     }
 

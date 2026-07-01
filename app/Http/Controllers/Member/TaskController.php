@@ -38,6 +38,7 @@ class TaskController extends Controller
         // Tasks due today
         $dueTodayTasks = Task::where('user_id', $user->id)
             ->whereDate('due_date', $now->toDateString())
+            ->where('due_date', '>=', $now)
             ->where('status', '!=', 'done')
             ->with('project')
             ->get();
@@ -52,7 +53,7 @@ class TaskController extends Controller
 
         // Overdue tasks
         $overdueTasks = Task::where('user_id', $user->id)
-            ->whereDate('due_date', '<', $now->toDateString())
+            ->where('due_date', '<', $now)
             ->where('status', '!=', 'done')
             ->with('project')
             ->orderBy('due_date', 'asc')
@@ -84,8 +85,21 @@ class TaskController extends Controller
         }
 
         $validated = $request->validate([
-            'status' => ['required', Rule::in(['todo', 'doing', 'done'])],
+            'status' => ['required', Rule::in(['todo', 'doing', 'in_review', 'done'])],
         ]);
+
+        // Dependency check
+        if (in_array($validated['status'], ['doing', 'in_review', 'done'])) {
+            $incompleteDependencies = $task->dependencies()
+                ->where('status', '!=', 'done')
+                ->exists();
+            if ($incompleteDependencies) {
+                if ($request->expectsJson()) {
+                    return response()->json(['error' => 'Tidak dapat mengubah status task karena masih ada dependency task yang belum selesai.'], 422);
+                }
+                return redirect()->back()->with('error_message', 'Tidak dapat mengubah status task karena masih ada dependency task yang belum selesai.');
+            }
+        }
 
         $oldStatus = $task->status;
         $task->update([
@@ -100,7 +114,7 @@ class TaskController extends Controller
             'description' => "Task '{$task->title}' status changed from {$oldStatus} to {$validated['status']}.",
             'category' => 'task',
             'is_read' => false,
-            'link' => route('member.dashboard'),
+            'link' => route('member.tasks.show', $task),
             'occurred_at' => now(),
         ]);
 
@@ -125,7 +139,19 @@ class TaskController extends Controller
             abort(403, 'Unauthorized');
         }
 
-        $task->load('project');
+        $task->load([
+            'project', 
+            'comments.user', 
+            'subtasks', 
+            'attachments.user', 
+            'labels', 
+            'dependencies.project', 
+            'dependents.project', 
+            'milestone',
+            'activities' => function($q) {
+                $q->orderBy('occurred_at', 'desc')->orderBy('created_at', 'desc');
+            }
+        ]);
 
         return view('member.tasks.show', [
             'task' => $task,
