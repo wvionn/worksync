@@ -54,17 +54,17 @@
 
         <!-- My Projects -->
         <a href="{{ route('member.projects.index') }}"
-           class="bg-sky-100 rounded-3xl p-8 border border-sky-200 hover:scale-105 transition duration-300">
+           class="bg-sky-100 rounded-2xl p-5 border border-sky-200 hover:scale-105 transition duration-300">
 
             <h4 class="text-sky-700 text-xs font-bold uppercase tracking-wider">
                 My Projects
             </h4>
 
-            <h2 class="text-5xl font-bold text-sky-800 mt-4">
+            <h2 class="text-3xl font-bold text-sky-800 mt-2">
                 {{ $totalProjects }}
             </h2>
 
-            <p class="text-sky-600 text-sm mt-3">
+            <p class="text-sky-600 text-xs mt-1">
                 View Projects →
             </p>
 
@@ -72,17 +72,17 @@
 
         <!-- Doing -->
         <a href="{{ route('member.projects.index') }}"
-           class="bg-blue-600 rounded-3xl p-8 text-white hover:scale-105 transition duration-300">
+           class="bg-blue-600 rounded-2xl p-5 text-white hover:scale-105 transition duration-300">
 
             <h4 class="text-xs font-bold uppercase tracking-wider">
                 Doing
             </h4>
 
-            <h2 class="text-5xl font-bold mt-4">
+            <h2 class="text-3xl font-bold mt-2">
                 {{ $doingTasks->count() }}
             </h2>
 
-            <p class="text-blue-100 text-sm mt-3">
+            <p class="text-blue-100 text-xs mt-1">
                 In Progress
             </p>
 
@@ -90,17 +90,17 @@
 
         <!-- Done -->
         <a href="{{ route('member.projects.index') }}"
-           class="bg-emerald-500 rounded-3xl p-8 text-white hover:scale-105 transition duration-300">
+           class="bg-emerald-500 rounded-2xl p-5 text-white hover:scale-105 transition duration-300">
 
             <h4 class="text-xs font-bold uppercase tracking-wider">
                 Done
             </h4>
 
-            <h2 class="text-5xl font-bold mt-4">
+            <h2 class="text-3xl font-bold mt-2">
                 {{ $doneTasks->count() }}
             </h2>
 
-            <p class="text-emerald-100 text-sm mt-3">
+            <p class="text-emerald-100 text-xs mt-1">
                 Completed
             </p>
 
@@ -108,17 +108,17 @@
 
         <!-- Overdue -->
         <a href="{{ route('member.deadlines') }}"
-           class="bg-red-500 rounded-3xl p-8 text-white hover:scale-105 transition duration-300">
+           class="bg-red-500 rounded-2xl p-5 text-white hover:scale-105 transition duration-300">
 
             <h4 class="text-xs font-bold uppercase tracking-wider">
                 Overdue
             </h4>
 
-            <h2 class="text-5xl font-bold mt-4">
+            <h2 class="text-3xl font-bold mt-2">
                 {{ $overdueTasks }}
             </h2>
 
-            <p class="text-red-100 text-sm mt-3">
+            <p class="text-red-100 text-xs mt-1">
                 Need Attention
             </p>
 
