@@ -34,7 +34,8 @@
             <div class="w-full h-3 rounded-full bg-slate-100">
                 <div class="h-3 rounded-full 
                     {{ $project['progress'] >= 100 ? 'bg-green-500' : ($project['progress'] >= 50 ? 'bg-blue-500' : 'bg-yellow-500') }}" 
-                    style="width: {{ $project['progress'] }}%"></div>
+                    style="width: {{ $project['progress'] }}%">
+                </div>
             </div>
 
             <div class="flex justify-between mt-2 text-sm">
@@ -59,7 +60,7 @@
             </span>
         </div>
 
-    </a>
+    </a> 
     @empty
     <div class="col-span-full">
         <div class="bg-white rounded-3xl p-12 border border-slate-200 text-center">
