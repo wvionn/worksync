@@ -4,7 +4,18 @@
 <div class="max-w-6xl mx-auto space-y-6">
     <!-- Back & Header -->
     <div class="flex items-center gap-4">
-        <a href="{{ route('member.dashboard') }}" class="text-gray-600 hover:text-gray-900">
+        @php
+            $previousUrl = url()->previous();
+            $currentUrl = url()->current();
+            $backUrl = route('member.dashboard');
+            
+            if ($previousUrl && $previousUrl !== $currentUrl && str_contains($previousUrl, url('/'))) {
+                $backUrl = $previousUrl;
+            } elseif ($task->project) {
+                $backUrl = route('member.projects.show', $task->project);
+            }
+        @endphp
+        <a href="{{ $backUrl }}" class="text-gray-600 hover:text-gray-900">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
             </svg>
