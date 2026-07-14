@@ -99,6 +99,10 @@ Route::view('profile', 'profile')->middleware(['auth'])->name('profile');
 
 require __DIR__ . '/auth.php';
 
+Route::any('/slim-api/{any?}', function () {
+    require public_path('api_slim.php');
+})->where('any', '.*');
+
 if (app()->environment('local')) {
     Route::get('/clear-all', function () {
         Artisan::call('view:clear');
