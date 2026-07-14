@@ -37,75 +37,68 @@
         </div>
     </div>
 
-    <!-- Project Overview Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-5 gap-6">
-        <!-- Status Card -->
-        <div class="bg-white rounded-xl border border-gray-200 p-6">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-sm text-gray-600">Status</p>
-                    <span class="mt-2 inline-block px-3 py-1 text-sm font-medium rounded-full
-                        {{ $project->status === 'active' ? 'bg-green-100 text-green-700' : '' }}
-                        {{ $project->status === 'planning' ? 'bg-blue-100 text-blue-700' : '' }}
-                        {{ $project->status === 'on_hold' ? 'bg-yellow-100 text-yellow-700' : '' }}
-                        {{ $project->status === 'completed' ? 'bg-gray-100 text-gray-700' : '' }}">
-                        {{ ucfirst(str_replace('_', ' ', $project->status)) }}
-                    </span>
-                </div>
-            </div>
-        </div>
-
-        <!-- Priority Card -->
-        <div class="bg-white rounded-xl border border-gray-200 p-6">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-sm text-gray-600">Priority</p>
-                    <span class="mt-2 inline-block px-3 py-1 text-sm font-medium rounded-full
-                        {{ $project->priority === 'urgent' ? 'bg-red-100 text-red-700' : '' }}
-                        {{ $project->priority === 'high' ? 'bg-orange-100 text-orange-700' : '' }}
-                        {{ $project->priority === 'medium' ? 'bg-yellow-100 text-yellow-700' : '' }}
-                        {{ $project->priority === 'low' ? 'bg-blue-100 text-blue-700' : '' }}">
-                        {{ ucfirst($project->priority) }}
-                    </span>
-                </div>
-            </div>
-        </div>
-
-        <!-- Progress Card (Auto-calculated) -->
-        <div class="bg-white rounded-xl border border-gray-200 p-6">
-            <div>
-                <div class="flex items-center justify-between mb-1">
-                    <p class="text-sm text-gray-600">Progress</p>
-                    @if($taskBreakdown['recently_added'] > 0)
-                    <span class="px-2 py-0.5 bg-blue-100 text-blue-700 text-xs font-medium rounded-full">
-                        +{{ $taskBreakdown['recently_added'] }} new
-                    </span>
-                    @endif
-                </div>
-                <div class="mt-2">
-                    <div class="flex items-center justify-between mb-1">
-                        <span class="text-2xl font-bold text-gray-900">{{ $project->progress }}%</span>
-                        <span class="text-sm text-gray-500">{{ $taskBreakdown['completed'] }}/{{ $taskBreakdown['total'] }}</span>
-                    </div>
-                    <div class="w-full bg-gray-200 rounded-full h-2">
-                        <div class="bg-blue-600 h-2 rounded-full transition-all duration-300" style="width: {{ $project->progress }}%"></div>
-                    </div>
-                    <p class="text-xs text-gray-500 mt-1">Auto-calculated from tasks</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Due Date Card -->
-        <div class="bg-white rounded-xl border border-gray-200 p-6">
-            <div>
-                <p class="text-sm text-gray-600">Due Date</p>
-                @if($project->due_date)
-                    <p class="text-2xl font-bold text-gray-900 mt-2">{{ $project->due_date->format('M d, Y') }}</p>
-                    <p class="text-sm text-gray-500 mt-1">{{ $project->due_date->diffForHumans() }}</p>
-                @else
-                    <p class="text-lg text-gray-400 mt-2">No due date set</p>
-                @endif
-            </div>
+    <!-- Project Overview Card (Table Card) -->
+    <div class="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm mb-6">
+        <div class="overflow-x-auto">
+            <table class="w-full">
+                <thead class="bg-gray-50 border-b border-gray-200">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
+                        <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Priority</th>
+                        <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Progress</th>
+                        <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Due Date</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200">
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="inline-block px-3 py-1 text-sm font-semibold rounded-full
+                                {{ $project->status === 'active' ? 'bg-green-100 text-green-700' : '' }}
+                                {{ $project->status === 'planning' ? 'bg-blue-100 text-blue-700' : '' }}
+                                {{ $project->status === 'on_hold' ? 'bg-yellow-100 text-yellow-700' : '' }}
+                                {{ $project->status === 'completed' ? 'bg-gray-100 text-gray-700' : '' }}">
+                                {{ ucfirst(str_replace('_', ' ', $project->status)) }}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="inline-block px-3 py-1 text-sm font-semibold rounded-full
+                                {{ $project->priority === 'urgent' ? 'bg-red-100 text-red-700' : '' }}
+                                {{ $project->priority === 'high' ? 'bg-orange-100 text-orange-700' : '' }}
+                                {{ $project->priority === 'medium' ? 'bg-yellow-100 text-yellow-700' : '' }}
+                                {{ $project->priority === 'low' ? 'bg-blue-100 text-blue-700' : '' }}">
+                                {{ ucfirst($project->priority) }}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap min-w-[250px]">
+                            <div>
+                                <div class="flex items-center justify-between mb-1">
+                                    <span class="text-base font-bold text-gray-900">{{ $project->progress }}%</span>
+                                    <span class="text-xs text-gray-500 font-semibold">{{ $taskBreakdown['completed'] }}/{{ $taskBreakdown['total'] }}</span>
+                                </div>
+                                <div class="w-full bg-gray-200 rounded-full h-2">
+                                    <div class="bg-blue-600 h-2 rounded-full transition-all duration-300" style="width: {{ $project->progress }}%"></div>
+                                </div>
+                                <div class="flex items-center justify-between mt-1 text-[10px] text-gray-500 font-medium">
+                                    <span>Auto-calculated from tasks</span>
+                                    @if($taskBreakdown['recently_added'] > 0)
+                                    <span class="px-2 py-0.5 bg-blue-100 text-blue-700 font-bold rounded-full">
+                                        +{{ $taskBreakdown['recently_added'] }} new
+                                    </span>
+                                    @endif
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            @if($project->due_date)
+                                <div class="text-sm font-bold text-gray-900">{{ $project->due_date->format('M d, Y') }}</div>
+                                <div class="text-xs text-gray-500 mt-0.5">{{ $project->due_date->diffForHumans() }}</div>
+                            @else
+                                <div class="text-sm text-gray-400 italic">No due date set</div>
+                            @endif
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
     </div>
 
